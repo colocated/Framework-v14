@@ -24,7 +24,7 @@
     },
     "homepage": "https://github.com/jsJack/Framework-v14#readme",
     "dependencies": {
-        "@prisma/client": "6.4.1",
+        "@prisma/client": "6.16.1",
         "chalk": "^4.1.2",
         "date-and-time": "^3.6.0",
         "discord.js": "^14.18.0",
