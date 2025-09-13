@@ -11,7 +11,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/jsJack/Framework-v14.git"
+        "url": "git+https://github.com/colocated/Framework-v14.git"
     },
     "keywords": [
         "discord",
@@ -20,9 +20,9 @@
     "author": "Jack Perry <hello@jackperry.co>",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/jsJack/Framework-v14/issues"
+        "url": "https://github.com/colocated/Framework-v14/issues"
     },
-    "homepage": "https://github.com/jsJack/Framework-v14#readme",
+    "homepage": "https://github.com/colocated/Framework-v14#readme",
     "dependencies": {
         "@prisma/client": "^6.16.1",
         "chalk": "^4.1.2",
