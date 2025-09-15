@@ -12,7 +12,7 @@ const Logger = require('../../structures/funcs/util/Logger');
 /** @typedef {import("../../structures/funcs/util/Types").ExtendedClient} ExtendedClient */
 
 module.exports = {
-    name: "ready",
+    name: "clientReady",
     once: true,
     /**
      *
