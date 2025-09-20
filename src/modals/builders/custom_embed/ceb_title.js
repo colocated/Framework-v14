@@ -68,8 +68,12 @@ module.exports = {
             if (value.length < 1) delete newEmbed.data[setter];
             else newEmbed.data[setter] = value;
 
-            if (field === 'color' && value) value = parseInt(value, 10);
-            doneEmbed.addFields({ name: field.charAt(0).toUpperCase() + field.slice(1), value: value ? value.toString(16) : "> Unset", inline: false });
+            if (field === 'color' && value) {
+                const hexColor = '#' + parseInt(value, 10).toString(16).padStart(6, '0').toUpperCase();
+                doneEmbed.addFields({ name: field.charAt(0).toUpperCase() + field.slice(1), value: hexColor, inline: false });
+            } else {
+                doneEmbed.addFields({ name: field.charAt(0).toUpperCase() + field.slice(1), value: value || "> Unset", inline: false });
+            }
         });
 
         if (newEmbed.data.title && newEmbed.data.description == "\u200b") newEmbed.setDescription(null);
