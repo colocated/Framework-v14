@@ -35,6 +35,12 @@ module.exports = {
             });
         }
 
+        if (!Array.isArray(customEmbed?.fields)) {
+            return interaction.reply({
+                embeds: [statusEmbed.create("This embed has no fields to delete.", 'Red')],
+                flags: MessageFlags.Ephemeral
+            });
+        }
         const field = customEmbed.fields[index];
 
         if (!field) {
