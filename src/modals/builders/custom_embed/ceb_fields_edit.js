@@ -12,9 +12,12 @@ module.exports = {
     */
     async execute(interaction) {
         const embed = EmbedBuilder.from(interaction.message.embeds[0]);
-        const fieldIndex = parseInt(embed.data.footer.text.split("#")[1]) - 1;
-        if (isNaN(fieldIndex)) return interaction.reply({ embeds: [statusEmbed.create("An error occurred while finding the field index. Please try again.")], ephemeral: true });
-
+        const footerText = embed.data.footer?.text ?? '';
+        const m = footerText.match(/#(\d+)/);
+        const fieldIndex = m ? (parseInt(m[1], 10) - 1) : NaN;
+        if (isNaN(fieldIndex)) {
+            return interaction.reply({ embeds: [statusEmbed.create("An error occurred while finding the field index. Please try again.")] , ephemeral: true });
+        }
         const fieldName = interaction.fields.getTextInputValue("ceb_fields_edit_name_i").trim();
         const fieldValue = interaction.fields.getTextInputValue("ceb_fields_edit_value_i").trim();
         let inline = interaction.fields.getTextInputValue("ceb_fields_edit_inline_i").trim();
