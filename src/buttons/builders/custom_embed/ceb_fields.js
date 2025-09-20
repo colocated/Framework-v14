@@ -21,8 +21,8 @@ module.exports = {
             )
             .setColor(client.config.color ?? `Purple`)
 
-        let fields = interaction.message.embeds[0].fields;
-        [fieldSelectMenuRow, fieldActions] = this.generateComponents(fields);
+        const fields = interaction.message.embeds[0]?.fields ?? [];
+        const [fieldSelectMenuRow, fieldActions] = this.generateComponents(fields);
 
         return interaction.reply({
             embeds: [manageFieldsEmbed],
