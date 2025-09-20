@@ -26,9 +26,8 @@ module.exports = {
         if (allowedYes.includes(inline.toLowerCase())) inline = true;
         else inline = false;
 
-        if (fieldName.length > 256) return interaction.reply({ embeds: [statusEmbed.create("The field name cannot exceed 256 characters.")], ephemeral: true });
-        if (fieldValue.length > 1024) return interaction.reply({ embeds: [statusEmbed.create("The field value cannot exceed 1024 characters.")], ephemeral: true });
-
+        if (fieldName.length < 1 || fieldName.length > 256) return interaction.reply({ embeds: [statusEmbed.create("The field name must be between 1 and 256 characters.")], ephemeral: true });
+        if (fieldValue.length < 1 || fieldValue.length > 1024) return interaction.reply({ embeds: [statusEmbed.create("The field value must be between 1 and 1024 characters.")], ephemeral: true });
         const referencedMessage = await interaction.message.fetchReference();
         let customEmbed = referencedMessage.embeds[0];
         const instructionsEmbed = referencedMessage.embeds[1];
