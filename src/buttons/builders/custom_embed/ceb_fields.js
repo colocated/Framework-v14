@@ -49,10 +49,12 @@ module.exports = {
                 // For some reason we have to provide an option even though they'll never be able to see it!
                 .setOptions([new StringSelectMenuOptionBuilder().setValue(`ceb_fields_select_none`).setLabel(`No fields to select`)]);
         } else {
-            let fieldMap = fields.map((field, index) => {
+            const fieldMap = fields.map((field, index) => {
+                const name = field.name ?? 'Untitled';
+                const value = field.value ?? '—';
                 return new StringSelectMenuOptionBuilder()
-                    .setLabel(field.name?.length > 100 ? field.name?.slice(0, 96) + `...` : field.name)
-                    .setDescription(`${field.value?.length > 100 ? field.value?.slice(0, 96) + `...` : field.value}`)
+                    .setLabel(name.length > 100 ? name.slice(0, 96) + '...' : name)
+                    .setDescription(value.length > 100 ? value.slice(0, 96) + '...' : value)
                     .setValue(`${index}`)
             });
 
