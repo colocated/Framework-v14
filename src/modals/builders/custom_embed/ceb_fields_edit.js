@@ -16,7 +16,7 @@ module.exports = {
         const m = footerText.match(/#(\d+)/);
         const fieldIndex = m ? (parseInt(m[1], 10) - 1) : NaN;
         if (isNaN(fieldIndex)) {
-            return interaction.reply({ embeds: [statusEmbed.create("An error occurred while finding the field index. Please try again.")] , ephemeral: true });
+            return interaction.reply({ embeds: [statusEmbed.create("An error occurred while finding the field index. Please try again.")], flags: [MessageFlags.Ephemeral] });
         }
         const fieldName = interaction.fields.getTextInputValue("ceb_fields_edit_name_i").trim();
         const fieldValue = interaction.fields.getTextInputValue("ceb_fields_edit_value_i").trim();
@@ -26,8 +26,8 @@ module.exports = {
         if (allowedYes.includes(inline.toLowerCase())) inline = true;
         else inline = false;
 
-        if (fieldName.length < 1 || fieldName.length > 256) return interaction.reply({ embeds: [statusEmbed.create("The field name must be between 1 and 256 characters.")], ephemeral: true });
-        if (fieldValue.length < 1 || fieldValue.length > 1024) return interaction.reply({ embeds: [statusEmbed.create("The field value must be between 1 and 1024 characters.")], ephemeral: true });
+        if (fieldName.length < 1 || fieldName.length > 256) return interaction.reply({ embeds: [statusEmbed.create("The field name must be between 1 and 256 characters.")], flags: [MessageFlags.Ephemeral] });
+        if (fieldValue.length < 1 || fieldValue.length > 1024) return interaction.reply({ embeds: [statusEmbed.create("The field value must be between 1 and 1024 characters.")], flags: [MessageFlags.Ephemeral] });
         const referencedMessage = await interaction.message.fetchReference();
         let customEmbed = referencedMessage.embeds[0];
         const instructionsEmbed = referencedMessage.embeds[1];
@@ -39,7 +39,7 @@ module.exports = {
 
         let newCustomEmbed = EmbedBuilder.from(customEmbed);
         if (!newCustomEmbed.data.fields || !newCustomEmbed.data.fields[fieldIndex]) {
-            return interaction.reply({ embeds: [statusEmbed.create("An error occurred while finding the field. Please try again.")], ephemeral: true });
+            return interaction.reply({ embeds: [statusEmbed.create("An error occurred while finding the field. Please try again.")], flags: [MessageFlags.Ephemeral] });
         }
 
         newCustomEmbed.data.fields[fieldIndex] = { name: fieldName, value: fieldValue, inline };

@@ -21,7 +21,7 @@ module.exports = {
 
         if (isNaN(index)) return interaction.reply({
             embeds: [statusEmbed.create("There was an error locating the field index.\nMake sure to select the field you're trying to edit using the menu above.", 'Red')],
-            ephemeral: true
+            flags: [MessageFlags.Ephemeral]
         });
 
         const aysRow = new ActionRowBuilder()
