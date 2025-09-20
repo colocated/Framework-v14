@@ -17,7 +17,7 @@ module.exports = {
         let description = interaction.fields.getTextInputValue("ceb_description_i");
         let color = interaction.fields.getTextInputValue("ceb_color_i");
 
-        if (!title && !description) {
+        if (!title && !description && !color) {
             return interaction.reply({
                 embeds: [statusEmbed.create("You must provide a title **or** description.", 'Red')],
                 flags: MessageFlags.Ephemeral
@@ -59,7 +59,7 @@ module.exports = {
         const updates = [
             { field: 'title', setter: 'title', value: title },
             { field: 'description', setter: 'description', value: description },
-            { field: 'color', setter: 'hexColor', value: color }
+            { field: 'color', setter: 'color', value: color ? parseInt(color.replace(/^#/, ''), 16).toString(10) : color }
         ];
 
         updates.forEach(({ field, setter, value }) => {
@@ -67,8 +67,9 @@ module.exports = {
             
             if (value.length < 1) delete newEmbed.data[setter];
             else newEmbed.data[setter] = value;
-            
-            doneEmbed.addFields({ name: field.charAt(0).toUpperCase() + field.slice(1), value: value.length ? value : "> Unset", inline: false });
+
+            if (field === 'color' && value) value = parseInt(value, 10);
+            doneEmbed.addFields({ name: field.charAt(0).toUpperCase() + field.slice(1), value: value ? value.toString(16) : "> Unset", inline: false });
         });
 
         if (newEmbed.data.title && newEmbed.data.description == "\u200b") newEmbed.setDescription(null);
