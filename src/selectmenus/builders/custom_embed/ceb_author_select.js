@@ -4,7 +4,7 @@ const StatusEmbedBuilder = require('../../../structures/funcs/tools/createStatus
 /** @typedef {import("../../../structures/funcs/util/Types").ExtendedClient} ExtendedClient */
 
 module.exports = {
-    id: "ceb_author_i",
+    id: "ceb_author_select",
 
     /**
     * 
@@ -58,7 +58,7 @@ module.exports = {
         if (!response) return;
 
         let doneEmbed = statusEmbed.create("The author has been successfully updated.", 'Green');
-        doneEmbed.setFields({ name: `Field`, value: `${userOption.charAt(0).toUpperCase() + userOption.slice(1)}`, inline: true });
+        doneEmbed.setFields({ name: `New value`, value: `${userOption.charAt(0).toUpperCase() + userOption.slice(1)}`, inline: true });
         
         await interaction.deferUpdate();
         await referencedMessage.edit({ embeds: [response, instructionsEmbed] });
