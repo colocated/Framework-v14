@@ -118,6 +118,7 @@ module.exports = {
 
         updates.forEach(({ field, setter, value }) => {
             if (value == null) return;
+            newEmbed.data.author ??= {};
 
             if (value.length < 1) delete newEmbed.data.author[setter];
             else newEmbed.data.author[setter] = value;
