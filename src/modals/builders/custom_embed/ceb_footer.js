@@ -43,7 +43,13 @@ module.exports = {
             });
         }
 
-        if (enteredData.timestamp && !isISO8601(enteredData.timestamp)) {
+        if (enteredData.timestamp) {
+            if (!isAcceptableTimestamp(enteredData.timestamp)) {
+                return interaction.reply({
+                    embeds: [statusEmbed.create("Invalid timestamp format. Please provide ISO 8601, a Discord timestamp, or relative time like `in 2 days`.", 'Red')],
+                    flags: MessageFlags.Ephemeral
+                });
+            }
             try {
                 enteredData.timestamp = toISO8601(enteredData.timestamp);
             } catch (e) {
@@ -51,7 +57,7 @@ module.exports = {
                     embeds: [statusEmbed.create(e.message, 'Red')],
                     flags: MessageFlags.Ephemeral
                 });
-            };
+            }
         }
 
         if (enteredData.image) {
@@ -176,16 +182,58 @@ function isURL(string) {
     return /^https?:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:\/\S*)?$/.test(string)
 };
 
+function normalizeRelativeTime(input) {
+    return input
+        .replace(/\bin a\b/gi, "in 1")
+        .replace(/\ban hour\b/gi, "1 hour")
+        .replace(/\ba minute\b/gi, "1 minute")
+        .replace(/\ba second\b/gi, "1 second");
+}
+
 function toISO8601(input) {
+    // Unix seconds
+    if (/^\d{9,12}$/.test(input)) {
+        return new Date(parseInt(input, 10) * 1000).toISOString();
+    }
+
+    // Discord-style <t:1234567890:R>
+    const discordMatch = input.match(/^<t:(\d{9,12})(:[a-zA-Z])?>$/);
+    if (discordMatch) {
+        return new Date(parseInt(discordMatch[1], 10) * 1000).toISOString();
+    }
+
+    // ISO 8601 string (return as is if valid)
+    const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+    if (isoRegex.test(input)) {
+        return input;
+    }
+
+    // Relative time using timestring with basic NLP normalization
     try {
-        const timestamp = timestring(input, 'ms'); // Convert to milliseconds
-        const date = new Date(Date.now() + timestamp); // Apply to current time if relative
+        const normalizedInput = normalizeRelativeTime(input);
+        const timestamp = timestring(normalizedInput, 'ms');
+        const date = new Date(Date.now() + timestamp);
         return date.toISOString();
-    } catch (err) {
-        throw new Error("Invalid timestamp format. Please provide a valid timestamp format.");
+    } catch {
+        throw new Error("Invalid timestamp format. Please provide a valid timestamp.");
     }
 };
 
-function isISO8601(string) {
-    return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?[+-]\d{2}:\d{2}$/.test(string);
+function isAcceptableTimestamp(input) {
+    // ISO 8601 (with optional Z timezone)
+    const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+    if (isoRegex.test(input)) return true;
+
+    // Discord-style <t:1234567890:R> or raw digits
+    const discordRegex = /^<?t:(\d{9,12})(:[a-zA-Z])?>?$|^\d{9,12}$/;
+    if (discordRegex.test(input)) return true;
+
+    // Relative time via timestring with small natural language support
+    try {
+        const normalizedInput = normalizeRelativeTime(input);
+        timestring(normalizedInput, 'ms');
+        return true;
+    } catch {
+        return false;
+    }
 };
