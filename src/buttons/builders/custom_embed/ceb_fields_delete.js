@@ -1,4 +1,4 @@
-const { ButtonInteraction, EmbedBuilder, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ButtonInteraction, EmbedBuilder, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, StringSelectMenuBuilder } = require('discord.js');
 
 const StatusEmbedBuilder = require('../../../structures/funcs/tools/createStatusEmbed');
 const statusEmbed = new StatusEmbedBuilder("Fields", { name: "Embed Builder" });
