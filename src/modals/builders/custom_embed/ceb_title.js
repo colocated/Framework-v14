@@ -76,7 +76,8 @@ module.exports = {
             }
         });
 
-        if (newEmbed.data.title && newEmbed.data.description == "\u200b") newEmbed.setDescription(null);
+        if (newEmbed.data.title && newEmbed.data.description == "\u200b") newEmbed.setDescription(null)
+        if (!newEmbed.data.title && !newEmbed.data.description) newEmbed.setDescription("\u200b");
 
         await interaction.message.edit({ embeds: [newEmbed, instructionsEmbed] });
         return interaction.reply({ embeds: [doneEmbed], flags: MessageFlags.Ephemeral });
