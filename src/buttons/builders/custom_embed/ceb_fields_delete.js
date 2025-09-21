@@ -43,13 +43,16 @@ module.exports = {
                     .setStyle(ButtonStyle.Success)
             );
 
-        let components = interaction.message.components.map(row => {
-            return ActionRowBuilder.from(row).setComponents(
-                ...row.components.map(component => {
-                    component.data.disabled = true;
-                    return component;
-                })
-            );
+        const components = interaction.message.components.map(row => {
+            const newRow = ActionRowBuilder.from(row);
+            const disabled = row.components.map((comp) => {
+                const type = comp.type ?? comp.data?.type;
+                if (type === ComponentType.Button) return ButtonBuilder.from(comp).setDisabled(true);
+                if (type === ComponentType.StringSelect) return StringSelectMenuBuilder.from(comp).setDisabled(true);
+                // Fallback: if the builder API is available, use it; otherwise leave as-is.
+                return typeof comp.setDisabled === 'function' ? comp.setDisabled(true) : comp;
+            });
+            return newRow.setComponents(...disabled);
         });
 
         components.push(aysRow);
