@@ -52,7 +52,6 @@ module.exports = {
 
         let newCustomEmbed = EmbedBuilder.from(customEmbed).spliceFields(index, 1);
         if (newCustomEmbed.data.fields.length === 0 && !newCustomEmbed.data.description) newCustomEmbed.setDescription(`\u200b`);
-        console.log(newCustomEmbed, instructionsEmbed)
         await referencedMessage.edit({ embeds: [newCustomEmbed, instructionsEmbed] });
 
         const fields = newCustomEmbed?.data.fields;
