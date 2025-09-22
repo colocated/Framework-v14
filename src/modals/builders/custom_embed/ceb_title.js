@@ -19,14 +19,14 @@ module.exports = {
 
         if (!title && !description && !color) {
             return interaction.reply({
-                embeds: [statusEmbed.create("You must provide a title **or** description.", 'Red')],
+                embeds: [statusEmbed.create("You must provide at least one of: Color, Title or Description.", 'Red')],
                 flags: MessageFlags.Ephemeral
             });
         }
 
         if (color && !/^#(?:[0-9a-fA-F]{3}){1,2}$/.test(color)) {
             return interaction.reply({
-                embeds: [statusEmbed.create("You must provide a valid hex code for the embed **color**.", 'Red')],
+                embeds: [statusEmbed.create("You must provide a valid hex code for the embed color.", 'Red')],
                 flags: MessageFlags.Ephemeral
             });
         }
