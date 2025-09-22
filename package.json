@@ -9,6 +9,9 @@
         "preinstall": "node ./scripts/preinstall.js",
         "postinstall": "node ./scripts/postinstall.js"
     },
+    "engines": {
+        "node": ">=22.19"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/colocated/Framework-v14.git"
