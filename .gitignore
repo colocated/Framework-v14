@@ -16,8 +16,6 @@ pids
 
 # Dependency-manager related
 node_modules/
-pnpm-lock.yaml
-
 
 # Optional npm cache directory
 .npm
