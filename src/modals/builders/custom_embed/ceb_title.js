@@ -53,8 +53,8 @@ module.exports = {
             });
         }
 
-        let newEmbed = EmbedBuilder.from(customEmbed);
-        let doneEmbed = statusEmbed.create("The title, description, and color have been successfully updated.", 'Green');
+        const newEmbed = EmbedBuilder.from(customEmbed);
+        const doneEmbed = statusEmbed.create("The title, description, and color have been successfully updated.", 'Green');
 
         const updates = [
             { field: 'title', setter: 'title', value: title },
