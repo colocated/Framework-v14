@@ -130,7 +130,7 @@ module.exports = {
         if (!newEmbed.data.title && !newEmbed.data.description && (!newEmbed.data.author || !newEmbed.data.author.name)) newEmbed.setDescription("\u200b");
 
         await referencedMessage.edit({ embeds: [newEmbed, instructionsEmbed] });
-        return interaction.editReply({ embeds: [doneEmbed], flags: MessageFlags.Ephemeral });
+        return interaction.followUp({ embeds: [doneEmbed], flags: MessageFlags.Ephemeral });
     }
 };
 
