@@ -223,10 +223,10 @@ function isAcceptableTimestamp(input) {
     const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
     if (isoRegex.test(input)) return true;
 
-    // Discord-style <t:1234567890:R> or raw digits
-    const discordRegex = /^<?t:(\d{9,12})(:[a-zA-Z])?>?$|^\d{9,12}$/;
-    if (discordRegex.test(input)) return true;
-
+    // Discord-style <t:epoch[:style]> (epoch = 10-digit seconds; style one of t,T,d,D,f,F,R)
+    if (/^<t:(\d{10})(:[tTdDfFR])?>$/.test(input)) return true;
+    // Raw Unix epoch digits: 10 (seconds) or 13 (milliseconds)
+    if (/^\d{10}$/.test(input) || /^\d{13}$/.test(input)) return true;
     // Relative time via timestring with small natural language support
     try {
         const normalizedInput = normalizeRelativeTime(input);
