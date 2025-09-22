@@ -56,23 +56,35 @@ module.exports = {
         const newEmbed = EmbedBuilder.from(customEmbed);
         const doneEmbed = statusEmbed.create("The title, description, and color have been successfully updated.", 'Green');
 
+        let normalizedColor = null;
+        if (color) {
+            // Expand 3-digit hex (e.g., "abc" -> "aabbcc") 
+            const cleanHex = color.replace(/^#/, '');
+            const expandedHex = cleanHex.length === 3 ? cleanHex.split('').map(c => c + c).join('') : cleanHex;
+            normalizedColor = parseInt(expandedHex, 16);
+        } else if (color === '') {
+            normalizedColor = null;
+        }
+
         const updates = [
             { field: 'title', setter: 'title', value: title },
             { field: 'description', setter: 'description', value: description },
-            { field: 'color', setter: 'color', value: color ? parseInt(color.replace(/^#/, ''), 16).toString(10) : color }
+            { field: 'color', setter: 'color', value: normalizedColor }
         ];
 
         updates.forEach(({ field, setter, value }) => {
             if (value == null) return;
-            
+
             if (value.length < 1) delete newEmbed.data[setter];
             else newEmbed.data[setter] = value;
 
-            if (field === 'color' && value) {
-                const hexColor = '#' + parseInt(value, 10).toString(16).padStart(6, '0').toUpperCase();
-                doneEmbed.addFields({ name: field.charAt(0).toUpperCase() + field.slice(1), value: hexColor, inline: false });
+            const name = field.charAt(0).toUpperCase() + field.slice(1);
+            if (field === 'color') {
+                const display = value === '' ? "> Unset" : ('#' + Number(value).toString(16).padStart(6, '0').toUpperCase());
+                doneEmbed.addFields({ name, value: display, inline: false });
             } else {
-                doneEmbed.addFields({ name: field.charAt(0).toUpperCase() + field.slice(1), value: value || "> Unset", inline: false });
+                const text = typeof value === 'string' && value.length > 1024 ? value.slice(0, 1021) + '...' : (value || "> Unset");
+                doneEmbed.addFields({ name, value: text, inline: false });
             }
         });
 
