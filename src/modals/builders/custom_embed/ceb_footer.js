@@ -39,7 +39,7 @@ module.exports = {
         if (enteredData.timestamp) {
             if (!isAcceptableTimestamp(enteredData.timestamp)) {
                 return interaction.reply({
-                    embeds: [statusEmbed.create("Invalid timestamp format. Please provide ISO 8601, a Discord timestamp, or relative time like `in 2 days`.", 'Red')],
+                    embeds: [statusEmbed.create("Invalid timestamp. Acceptable formats: ISO 8601 (e.g., 2025-09-22T12:34:56Z), Discord <t:epoch[:style]>, Unix epoch (10 or 13 digits), or relative time (e.g., `2 days`, `in 2 days`).", 'Red')],
                     flags: MessageFlags.Ephemeral
                 });
             }
@@ -183,12 +183,12 @@ function isURL(string) {
 
 function normalizeRelativeTime(input) {
     return input
-        .replace(/\bin a\b/gi, "in 1")
-        .replace(/\ban hour\b/gi, "1 hour")
-        .replace(/\ba minute\b/gi, "1 minute")
-        .replace(/\ba second\b/gi, "1 second");
+        .trim()
+        // "in 2 days" -> "2 days"
+        .replace(/^\s*in\s+/i, "")
+        // "in a day" (after previous rule) or "a day" -> "1 day"
+        .replace(/\ban?\s+(day|hour|minute|second)s?\b/gi, "1 $1");
 }
-
 function toISO8601(input) {
     // Unix seconds
     if (/^\d{9,12}$/.test(input)) {
