@@ -65,7 +65,7 @@ module.exports = {
                             .setValue(existingColor)
 
                             .setStyle(TextInputStyle.Short)
-                            .setRequired(false)
+                            .setRequired(true)
                             .setMinLength(6)
                             .setMaxLength(7)
                     )
