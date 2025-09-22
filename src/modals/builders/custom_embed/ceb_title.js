@@ -24,7 +24,7 @@ module.exports = {
             });
         }
 
-        if (color && !/^#(?:[0-9a-fA-F]{3}){1,2}$/.test(color)) {
+        if (color && !/^#?(?:[0-9a-fA-F]{3}){1,2}$/.test(color)) {
             return interaction.reply({
                 embeds: [statusEmbed.create("You must provide a valid hex code for the embed color.", 'Red')],
                 flags: MessageFlags.Ephemeral
