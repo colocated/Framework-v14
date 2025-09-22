@@ -22,13 +22,6 @@ module.exports = {
             "timestamp": interaction.fields.getTextInputValue("ceb_footer_timestamp_i") ?? ""
         };
 
-        if (!enteredData.text && !enteredData.image && !enteredData.timestamp) {
-            return interaction.reply({
-                embeds: [statusEmbed.create("You must provide at least one value for the footer.", 'Red')],
-                flags: MessageFlags.Ephemeral
-            });
-        };
-
         if (enteredData.image && !enteredData.text) {
             return interaction.reply({
                 embeds: [statusEmbed.create("You must provide a text if you want to set an icon.", 'Red')],
