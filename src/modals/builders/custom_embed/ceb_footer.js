@@ -39,7 +39,7 @@ module.exports = {
         if (enteredData.timestamp) {
             if (!isAcceptableTimestamp(enteredData.timestamp)) {
                 return interaction.reply({
-                    embeds: [statusEmbed.create("Invalid timestamp format. Please provide ISO 8601, a Discord timestamp, or relative time like `in 2 days`.", 'Red')],
+                    embeds: [statusEmbed.create("Invalid timestamp. Acceptable formats: ISO 8601 (e.g., 2025-09-22T12:34:56Z), Discord <t:epoch[:style]>, Unix epoch (10 or 13 digits), or relative time (e.g., `2 days`, `in 2 days`).", 'Red')],
                     flags: MessageFlags.Ephemeral
                 });
             }
