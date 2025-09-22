@@ -173,6 +173,12 @@ module.exports = {
             }
         });
 
+        // According to Discord.js, there has to be a description/title if there is only a timestamp in the footer
+        // However having a footer text/icon allows for no title/description
+        const footerElementPresent = (newEmbed.data.footer && (newEmbed.data.footer.text || newEmbed.data.footer.icon_url));
+        if (footerElementPresent && newEmbed.data.description == "\u200b") newEmbed.setDescription(null);
+        if (!newEmbed.data.title && !newEmbed.data.description && !footerElementPresent) newEmbed.setDescription("\u200b");
+
         await interaction.message.edit({ embeds: [newEmbed, instructionsEmbed] });
         return interaction.reply({ embeds: [doneEmbed], flags: MessageFlags.Ephemeral });
     }

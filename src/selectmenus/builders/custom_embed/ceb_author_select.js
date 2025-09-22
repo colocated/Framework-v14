@@ -61,6 +61,10 @@ module.exports = {
         doneEmbed.setFields({ name: `New value`, value: `${userOption.charAt(0).toUpperCase() + userOption.slice(1)}`, inline: true });
         
         await interaction.deferUpdate();
+
+        if (newEmbed.data.author && (newEmbed.data.author.name || newEmbed.data.author.icon_url) && newEmbed.data.description == "\u200b") newEmbed.setDescription(null);
+        if (!newEmbed.data.title && !newEmbed.data.description && (!newEmbed.data.author || !newEmbed.data.author.name)) newEmbed.setDescription("\u200b");
+
         await referencedMessage.edit({ embeds: [response, instructionsEmbed] });
         return interaction.editReply({ embeds: [doneEmbed], flags: [MessageFlags.Ephemeral] });
     }
