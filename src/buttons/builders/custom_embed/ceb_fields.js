@@ -94,6 +94,12 @@ module.exports = {
                     .setLabel(`Delete Field`)
                     .setStyle(ButtonStyle.Danger)
                     .setDisabled(fields.length === 0), // Disabled if there are no fields
+
+                new ButtonBuilder()
+                    .setCustomId(`ceb_fields_reorder`)
+                    .setLabel(`Reorder Fields`)
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(fields.length < 2) // Disabled if there are less than 2 fields
             )
 
         return [fieldSelectMenuRow, fieldActionsRow];
