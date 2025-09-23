@@ -11,16 +11,7 @@ module.exports = {
     * @param {ExtendedClient} client 
     */
     async execute(interaction, client) {
-        let manageFieldsEmbed = new EmbedBuilder()
-            .setTitle("🌾 Manage Fields")
-            .setDescription("Use this menu to manage fields on your custom embed.")
-            .setFields(
-            { name: `Adding a field`, value: `Click the green button to add a new field. Limited to **25 fields** per embed.` },
-            { name: `Editing a field`, value: `Select a field from the dropdown menu, then click the blue __Edit__ button to modify its name, value, and inline settings.` },
-            { name: `Deleting a field`, value: `Select a field from the dropdown menu, then click the red __Delete__ button to remove it.` },
-            )
-            .setColor(client.config.color ?? `Purple`)
-
+        const manageFieldsEmbed = this.generateEmbeds(client);
         const fields = interaction.message.embeds[0]?.fields ?? [];
         const [fieldSelectMenuRow, fieldActions] = this.generateComponents(fields);
 
@@ -29,6 +20,26 @@ module.exports = {
             components: [fieldSelectMenuRow, fieldActions],
             flags: [MessageFlags.Ephemeral]
         });
+    },
+
+    /**
+     * Returns the Manage Fields embed so we can access it in the back button from Reorder Fields.
+     * @param {ExtendedClient} client
+     * @returns {EmbedBuilder}
+     */
+    generateEmbeds: function (client) {
+        const manageFieldsEmbed = new EmbedBuilder()
+            .setTitle("🌾 Manage Fields")
+            .setDescription("Use this menu to manage fields on your custom embed.")
+            .setFields(
+                { name: `Adding a field`, value: `Click the green button to add a new field. Limited to **25 fields** per embed.` },
+                { name: `Editing a field`, value: `Select a field from the dropdown menu, then click the blue __Edit__ button to modify its name, value, and inline settings.` },
+                { name: `Deleting a field`, value: `Select a field from the dropdown menu, then click the red __Delete__ button to remove it.` },
+                { name: `Reordering fields`, value: `Click the grey __Reorder__ button to change the order of your fields.\nThis action is disabled until there are at least 2 fields on the custom embed.` }
+            )
+            .setColor(client.config.color ?? `Purple`)
+
+        return manageFieldsEmbed;
     },
 
     /**
