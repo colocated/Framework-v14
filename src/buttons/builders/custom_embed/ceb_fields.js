@@ -13,7 +13,7 @@ module.exports = {
     async execute(interaction, client) {
         const manageFieldsEmbed = this.generateEmbeds(client);
         const fields = interaction.message.embeds[0]?.fields ?? [];
-        const [fieldSelectMenuRow, fieldActions] = this.generateComponents(fields);
+        const [fieldSelectMenuRow, fieldActions] = this.generateComponents(fields, interaction);
 
         return interaction.reply({
             embeds: [manageFieldsEmbed],
@@ -47,7 +47,7 @@ module.exports = {
      * @param {Array} fields 
      * @returns 
      */
-    generateComponents: function (fields) {
+    generateComponents: function (fields, defaultIndex = null) {
         let fieldSelectMenu = new StringSelectMenuBuilder()
             .setCustomId(`ceb_fields_select`)
             .setPlaceholder(`Select a field to edit or delete`)
@@ -63,10 +63,13 @@ module.exports = {
             const fieldMap = fields.map((field, index) => {
                 const name = field.name ?? 'Untitled';
                 const value = field.value ?? '—';
+                const isDefaultOption = (defaultIndex === index) ?? false;
+
                 return new StringSelectMenuOptionBuilder()
                     .setLabel(name.length > 100 ? name.slice(0, 96) + '...' : name)
                     .setDescription(value.length > 100 ? value.slice(0, 96) + '...' : value)
                     .setValue(`${index}`)
+                    .setDefault(isDefaultOption)
             });
 
             fieldSelectMenu.setOptions(fieldMap);
@@ -87,13 +90,13 @@ module.exports = {
                     .setCustomId(`ceb_fields_edit`)
                     .setLabel(`Edit Field`)
                     .setStyle(ButtonStyle.Primary)
-                    .setDisabled(fields.length === 0), // Disabled if there are no fields
+                    .setDisabled(!fieldSelectMenu.options.find(o => o.data?.default)), // Disabled if the select menu hasn't been used
 
                 new ButtonBuilder()
                     .setCustomId(`ceb_fields_delete`)
                     .setLabel(`Delete Field`)
                     .setStyle(ButtonStyle.Danger)
-                    .setDisabled(fields.length === 0), // Disabled if there are no fields
+                    .setDisabled(!fieldSelectMenu.options.find(o => o.data?.default)), // Disabled if the select menu hasn't been used
 
                 new ButtonBuilder()
                     .setCustomId(`ceb_fields_reorder`)
