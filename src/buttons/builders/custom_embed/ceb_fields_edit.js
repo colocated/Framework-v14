@@ -15,16 +15,7 @@ module.exports = {
     * @param {ExtendedClient} client 
     */
     async execute(interaction, client) {
-        const embed = EmbedBuilder.from(interaction.message.embeds[0]);
-        const footerText = embed.data.footer?.text ?? '';
-        const m = footerText.match(/#(\d+)/);
-        const index = m ? (parseInt(m[1], 10) - 1) : NaN;
-
-        if (isNaN(index)) return interaction.reply({
-            embeds: [statusEmbed.create("There was an error locating the field index.\nMake sure to select the field you're trying to edit using the menu above.", 'Red')],
-            flags: [MessageFlags.Ephemeral]
-        });
-
+        const index = parseInt(interaction.message.components[0].components[0].data.options.find(o => o?.default === true).value);
         const referencedMessage = await interaction.message.fetchReference();
         const customEmbed = referencedMessage.embeds[0];
         const field = customEmbed.fields[index];

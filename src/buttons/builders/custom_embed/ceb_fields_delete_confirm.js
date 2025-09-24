@@ -24,16 +24,7 @@ module.exports = {
             });
         }
 
-        let menuEmbed = EmbedBuilder.from(interaction.message.embeds[0]);
-        const index = parseInt(menuEmbed.data.footer?.text?.split('#')[1]) - 1;
-        menuEmbed.setFooter(null);
-
-        if (isNaN(index)) {
-            return interaction.reply({
-                embeds: [statusEmbed.create("There was an error locating the field index.\nMake sure to select the field you're trying to delete using the menu above.", 'Red')],
-                flags: MessageFlags.Ephemeral
-            });
-        }
+        const index = parseInt(interaction.message.components[0].components[0].data.options.find(o => o?.default === true).value);
 
         if (!Array.isArray(customEmbed?.fields)) {
             return interaction.reply({
@@ -57,7 +48,7 @@ module.exports = {
         const fields = newCustomEmbed?.data.fields;
         const components = generateComponents(fields);
 
-        await interaction.update({ embeds: [menuEmbed], components });
+        await interaction.update({ components });
         return interaction.followUp({
             embeds: [
                 statusEmbed.create(`Successfully deleted field #${index + 1}.`, 'Green')

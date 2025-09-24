@@ -14,20 +14,20 @@ module.exports = {
     * @param {ExtendedClient} client 
     */
     async execute(interaction, client) {
-        const embed = EmbedBuilder.from(interaction.message.embeds[0]);
-        const footerText = embed.data.footer?.text ?? '';
-        const m = footerText.match(/#(\d+)/);
-        const index = m ? (parseInt(m[1], 10) - 1) : NaN;
+        const index = parseInt(interaction.message.components[0].components[0].data.options.find(o => o?.default === true).value);
+        const referencedMessage = await interaction.message.fetchReference();
+        const customEmbed = referencedMessage.embeds[0];
+        const field = customEmbed.fields[index];
 
-        if (isNaN(index)) return interaction.reply({
-            embeds: [statusEmbed.create("There was an error locating the field index.\nMake sure to select the field you're trying to edit using the menu above.", 'Red')],
-            flags: [MessageFlags.Ephemeral]
+        if (!field) return interaction.reply({
+            embeds: [statusEmbed.create("There was an error locating the field. Has it been deleted?", 'Red')],
+            flags: MessageFlags.Ephemeral
         });
 
         const aysRow = new ActionRowBuilder()
             .setComponents(
                 new ButtonBuilder()
-                    .setCustomId(`title_only_delete_field_${Math.floor(Math.random() * 1000000)}`)
+                    .setCustomId(`ceb_fields_delete_${index}`)
                     .setLabel(`Delete field #${index + 1}?`)
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(true),

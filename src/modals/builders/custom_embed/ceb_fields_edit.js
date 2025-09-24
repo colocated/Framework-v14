@@ -11,13 +11,7 @@ module.exports = {
     * @param {ModalSubmitInteraction} interaction 
     */
     async execute(interaction) {
-        const embed = EmbedBuilder.from(interaction.message.embeds[0]);
-        const footerText = embed.data.footer?.text ?? '';
-        const m = footerText.match(/#(\d+)/);
-        const fieldIndex = m ? (parseInt(m[1], 10) - 1) : NaN;
-        if (isNaN(fieldIndex)) {
-            return interaction.reply({ embeds: [statusEmbed.create("An error occurred while finding the field index. Please try again.")], flags: [MessageFlags.Ephemeral] });
-        }
+        const fieldIndex = parseInt(interaction.message.components[0].components[0].data.options.find(o => o?.default === true).value);
         const fieldName = interaction.fields.getTextInputValue("ceb_fields_edit_name_i").trim();
         const fieldValue = interaction.fields.getTextInputValue("ceb_fields_edit_value_i").trim();
         let inline = interaction.fields.getTextInputValue("ceb_fields_edit_inline_i").trim();
