@@ -17,16 +17,9 @@ module.exports = {
         let description = interaction.fields.getTextInputValue("ceb_description_i");
         let color = interaction.fields.getTextInputValue("ceb_color_i");
 
-        if (!title && !description) {
+        if (color && !/^#?(?:[0-9a-fA-F]{3}){1,2}$/.test(color)) {
             return interaction.reply({
-                embeds: [statusEmbed.create("You must provide a title **or** description.", 'Red')],
-                flags: MessageFlags.Ephemeral
-            });
-        }
-
-        if (color && !/^#(?:[0-9a-fA-F]{3}){1,2}$/.test(color)) {
-            return interaction.reply({
-                embeds: [statusEmbed.create("You must provide a valid hex code for the embed **color**.", 'Red')],
+                embeds: [statusEmbed.create("You must provide a valid hex code for the embed color.", 'Red')],
                 flags: MessageFlags.Ephemeral
             });
         }
@@ -53,25 +46,43 @@ module.exports = {
             });
         }
 
-        let newEmbed = EmbedBuilder.from(customEmbed);
-        let doneEmbed = statusEmbed.create("The title, description, and color have been successfully updated.", 'Green');
+        const newEmbed = EmbedBuilder.from(customEmbed);
+        const doneEmbed = statusEmbed.create("The title, description, and color have been successfully updated.", 'Green');
+
+        let normalizedColor = null;
+        if (color) {
+            // Expand 3-digit hex (e.g., "abc" -> "aabbcc") 
+            const cleanHex = color.replace(/^#/, '');
+            const expandedHex = cleanHex.length === 3 ? cleanHex.split('').map(c => c + c).join('') : cleanHex;
+            normalizedColor = parseInt(expandedHex, 16);
+        } else if (color === '') {
+            normalizedColor = null;
+        }
 
         const updates = [
             { field: 'title', setter: 'title', value: title },
             { field: 'description', setter: 'description', value: description },
-            { field: 'color', setter: 'hexColor', value: color }
+            { field: 'color', setter: 'color', value: normalizedColor }
         ];
 
         updates.forEach(({ field, setter, value }) => {
             if (value == null) return;
-            
+
             if (value.length < 1) delete newEmbed.data[setter];
             else newEmbed.data[setter] = value;
-            
-            doneEmbed.addFields({ name: field.charAt(0).toUpperCase() + field.slice(1), value: value.length ? value : "> Unset", inline: false });
+
+            const name = field.charAt(0).toUpperCase() + field.slice(1);
+            if (field === 'color') {
+                const display = value === '' ? "> Unset" : ('#' + Number(value).toString(16).padStart(6, '0').toUpperCase());
+                doneEmbed.addFields({ name, value: display, inline: false });
+            } else {
+                const text = typeof value === 'string' && value.length > 1024 ? value.slice(0, 1021) + '...' : (value || "> Unset");
+                doneEmbed.addFields({ name, value: text, inline: false });
+            }
         });
 
-        if (newEmbed.data.title && newEmbed.data.description == "\u200b") newEmbed.setDescription(null);
+        if (newEmbed.data.title && newEmbed.data.description == "\u200b") newEmbed.setDescription(null)
+        if (!newEmbed.data.title && !newEmbed.data.description) newEmbed.setDescription("\u200b");
 
         await interaction.message.edit({ embeds: [newEmbed, instructionsEmbed] });
         return interaction.reply({ embeds: [doneEmbed], flags: MessageFlags.Ephemeral });

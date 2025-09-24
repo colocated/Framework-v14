@@ -29,7 +29,7 @@ module.exports = {
         existingColor = existingColor ?? "#ffffff";
 
         let modal = new ModalBuilder()
-            .setTitle("Embed Builder | Title, Description, and Color")
+            .setTitle("Title, Description, and Color")
             .setCustomId("ceb_title")
             .setComponents(
                 new ActionRowBuilder()
@@ -65,7 +65,7 @@ module.exports = {
                             .setValue(existingColor)
 
                             .setStyle(TextInputStyle.Short)
-                            .setRequired(false)
+                            .setRequired(true)
                             .setMinLength(6)
                             .setMaxLength(7)
                     )

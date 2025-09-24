@@ -31,7 +31,7 @@ module.exports = {
         let actionRow = new ActionRowBuilder()
             .setComponents(
                 new StringSelectMenuBuilder()
-                    .setCustomId("ceb_author_i")
+                    .setCustomId("ceb_author_select")
                     .setPlaceholder("Select an author...")
                     .setOptions(
                         new StringSelectMenuOptionBuilder()

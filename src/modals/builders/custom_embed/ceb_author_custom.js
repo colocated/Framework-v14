@@ -118,6 +118,7 @@ module.exports = {
 
         updates.forEach(({ field, setter, value }) => {
             if (value == null) return;
+            newEmbed.data.author ??= {};
 
             if (value.length < 1) delete newEmbed.data.author[setter];
             else newEmbed.data.author[setter] = value;
@@ -125,8 +126,11 @@ module.exports = {
             doneEmbed.addFields({ name: field.charAt(0).toUpperCase() + field.slice(1), value: value.length ? value : "> Unset", inline: false });
         });
 
+        if (newEmbed.data.author && (newEmbed.data.author.name || newEmbed.data.author.icon_url) && newEmbed.data.description == "\u200b") newEmbed.setDescription(null);
+        if (!newEmbed.data.title && !newEmbed.data.description && (!newEmbed.data.author || !newEmbed.data.author.name)) newEmbed.setDescription("\u200b");
+
         await referencedMessage.edit({ embeds: [newEmbed, instructionsEmbed] });
-        return interaction.editReply({ embeds: [doneEmbed], flags: MessageFlags.Ephemeral });
+        return interaction.followUp({ embeds: [doneEmbed], flags: MessageFlags.Ephemeral });
     }
 };
 

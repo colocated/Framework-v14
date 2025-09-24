@@ -106,6 +106,9 @@ module.exports = {
             doneEmbed.addFields({ name: field.charAt(0).toUpperCase() + field.slice(1), value: value.length ? value : "> Unset", inline: false });
         });
 
+        if ((newEmbed.data.thumbnail || newEmbed.data.image) && newEmbed.data.description === '\u200b') newEmbed.setDescription(null);
+        if (!newEmbed.data.thumbnail && !newEmbed.data.image && newEmbed.data.description == null) newEmbed.setDescription('\u200b');
+
         await interaction.message.edit({ embeds: [newEmbed, instructionsEmbed] });
         return interaction.reply({ embeds: [doneEmbed], flags: MessageFlags.Ephemeral });
     }

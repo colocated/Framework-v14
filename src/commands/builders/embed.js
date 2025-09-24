@@ -120,7 +120,6 @@ async function create(interaction, client) {
                 .setCustomId("ceb_fields")
                 .setLabel("Manage Fields")
                 .setStyle(ButtonStyle.Primary)
-                .setDisabled(true)
         );
 
     let actionRow3 = new ActionRowBuilder()

@@ -1,0 +1,64 @@
+const { ButtonInteraction, EmbedBuilder, MessageFlags } = require('discord.js');
+const { generateComponents } = require('./ceb_fields');
+const StatusEmbedBuilder = require('../../../structures/funcs/tools/createStatusEmbed');
+const statusEmbed = new StatusEmbedBuilder("Fields", { name: "Embed Builder" });
+
+/** @typedef {import("../../../structures/funcs/util/Types").ExtendedClient} ExtendedClient */
+
+module.exports = {
+    id: "ceb_fields_delete_confirm",
+
+    /**
+     * @param {ButtonInteraction} interaction 
+     * @param {ExtendedClient} client 
+     */
+    async execute(interaction, client) {
+        const referencedMessage = await interaction.message.fetchReference();
+        const customEmbed = referencedMessage.embeds[0];
+        const instructionsEmbed = referencedMessage.embeds[1];
+
+        if (!customEmbed || !instructionsEmbed) {
+            return interaction.reply({
+                embeds: [statusEmbed.create("There was an error locating the custom embed. Has it been deleted?", 'Red')],
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        const index = parseInt(interaction.message.components[0].components[0].data.options.find(o => o?.default === true).value);
+
+        if (!Array.isArray(customEmbed?.fields)) {
+            return interaction.reply({
+                embeds: [statusEmbed.create("This embed has no fields to delete.", 'Red')],
+                flags: MessageFlags.Ephemeral
+            });
+        }
+        const field = customEmbed.fields[index];
+
+        if (!field) {
+            return interaction.reply({
+                embeds: [statusEmbed.create("There was an error locating the field.\nMake sure to select the field you're trying to delete using the menu above.", 'Red')],
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        let newCustomEmbed = EmbedBuilder.from(customEmbed).spliceFields(index, 1);
+        if (newCustomEmbed.data.fields.length === 0 && !newCustomEmbed.data.description) newCustomEmbed.setDescription(`\u200b`);
+        await referencedMessage.edit({ embeds: [newCustomEmbed, instructionsEmbed] });
+
+        const fields = newCustomEmbed?.data.fields;
+        const components = generateComponents(fields);
+
+        await interaction.update({ components });
+        return interaction.followUp({
+            embeds: [
+                statusEmbed.create(`Successfully deleted field #${index + 1}.`, 'Green')
+                    .setFields(
+                        { name: `Name`, value: field.name },
+                        { name: `Value`, value: field.value },
+                        { name: `Inline`, value: field.inline ? "True" : "False" }
+                    )
+            ],
+            flags: MessageFlags.Ephemeral
+        });
+    }
+};

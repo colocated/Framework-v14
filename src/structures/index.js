@@ -14,7 +14,7 @@ const Logger = require('./funcs/util/Logger');
 const { missingSecrets } = require('../../scripts/helpers/env');
 const { loadEvents } = require("./handlers/loadEvents");
 
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 /** @typedef {import("./funcs/util/Types").ExtendedClient} ExtendedClient */
 
