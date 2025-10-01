@@ -9,6 +9,9 @@
         "preinstall": "node ./scripts/preinstall.js",
         "postinstall": "node ./scripts/postinstall.js"
     },
+    "engines": {
+        "node": ">=22.20"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/colocated/Framework-v14.git"
@@ -26,18 +29,18 @@
     "dependencies": {
         "@prisma/client": "^6.16.2",
         "chalk": "^4.1.2",
-        "date-and-time": "^3.6.0",
+        "date-and-time": "^4.0.5",
         "discord.js": "^14.22.1",
-        "dotenv": "^16.6.1",
+        "dotenv": "^17.2.2",
         "fs-extra": "^11.3.2",
         "glob": "^11.0.3",
-        "node-cron": "^3.0.3",
+        "node-cron": "^4.2.1",
         "timestring": "^7.0.0"
     },
     "devDependencies": {
         "prisma": "^6.16.2"
     },
-    "packageManager": "pnpm@10.16.1+sha512.0e155aa2629db8672b49e8475da6226aa4bdea85fdcdfdc15350874946d4f3c91faaf64cbdc4a5d1ab8002f473d5c3fcedcd197989cf0390f9badd3c04678706",
+    "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a",
     "pnpm": {
         "ignoredBuiltDependencies": [
             "@prisma/client",

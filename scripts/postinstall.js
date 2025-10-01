@@ -5,7 +5,7 @@ const exec = promisify(require('child_process').exec);
 
 const Logger = require('../src/structures/funcs/util/Logger');
 
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 // Constants
 const FALLBACK_PATHS = { prisma: './node_modules/prisma/build/index.js' };

@@ -22,13 +22,6 @@ module.exports = {
             "timestamp": interaction.fields.getTextInputValue("ceb_footer_timestamp_i") ?? ""
         };
 
-        if (!enteredData.text && !enteredData.image && !enteredData.timestamp) {
-            return interaction.reply({
-                embeds: [statusEmbed.create("You must provide at least one value for the footer.", 'Red')],
-                flags: MessageFlags.Ephemeral
-            });
-        };
-
         if (enteredData.image && !enteredData.text) {
             return interaction.reply({
                 embeds: [statusEmbed.create("You must provide a text if you want to set an icon.", 'Red')],
@@ -43,7 +36,13 @@ module.exports = {
             });
         }
 
-        if (enteredData.timestamp && !isISO8601(enteredData.timestamp)) {
+        if (enteredData.timestamp) {
+            if (!isAcceptableTimestamp(enteredData.timestamp)) {
+                return interaction.reply({
+                    embeds: [statusEmbed.create("Invalid timestamp. Acceptable formats: ISO 8601 (e.g., 2025-09-22T12:34:56Z), Discord <t:epoch[:style]>, Unix epoch (10 or 13 digits), or relative time (e.g., `2 days`, `in 2 days`).", 'Red')],
+                    flags: MessageFlags.Ephemeral
+                });
+            }
             try {
                 enteredData.timestamp = toISO8601(enteredData.timestamp);
             } catch (e) {
@@ -51,7 +50,7 @@ module.exports = {
                     embeds: [statusEmbed.create(e.message, 'Red')],
                     flags: MessageFlags.Ephemeral
                 });
-            };
+            }
         }
 
         if (enteredData.image) {
@@ -167,6 +166,12 @@ module.exports = {
             }
         });
 
+        // According to Discord.js, there has to be a description/title if there is only a timestamp in the footer
+        // However having a footer text/icon allows for no title/description
+        const footerElementPresent = (newEmbed.data.footer && (newEmbed.data.footer.text || newEmbed.data.footer.icon_url));
+        if (footerElementPresent && newEmbed.data.description == "\u200b") newEmbed.setDescription(null);
+        if (!newEmbed.data.title && !newEmbed.data.description && !footerElementPresent) newEmbed.setDescription("\u200b");
+
         await interaction.message.edit({ embeds: [newEmbed, instructionsEmbed] });
         return interaction.reply({ embeds: [doneEmbed], flags: MessageFlags.Ephemeral });
     }
@@ -176,16 +181,58 @@ function isURL(string) {
     return /^https?:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:\/\S*)?$/.test(string)
 };
 
+function normalizeRelativeTime(input) {
+    return input
+        .trim()
+        // "in 2 days" -> "2 days"
+        .replace(/^\s*in\s+/i, "")
+        // "in a day" (after previous rule) or "a day" -> "1 day"
+        .replace(/\ban?\s+(day|hour|minute|second)s?\b/gi, "1 $1");
+}
 function toISO8601(input) {
+    // Unix seconds
+    if (/^\d{9,12}$/.test(input)) {
+        return new Date(parseInt(input) * 1000).toISOString();
+    }
+
+    // Discord-style <t:1234567890:R>
+    const discordMatch = input.match(/^<t:(\d{9,12})(:[a-zA-Z])?>$/);
+    if (discordMatch) {
+        return new Date(parseInt(discordMatch[1]) * 1000).toISOString();
+    }
+
+    // ISO 8601 string (return as is if valid)
+    const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+    if (isoRegex.test(input)) {
+        return input;
+    }
+
+    // Relative time using timestring with basic NLP normalization
     try {
-        const timestamp = timestring(input, 'ms'); // Convert to milliseconds
-        const date = new Date(Date.now() + timestamp); // Apply to current time if relative
+        const normalizedInput = normalizeRelativeTime(input);
+        const timestamp = timestring(normalizedInput, 'ms');
+        const date = new Date(Date.now() + timestamp);
         return date.toISOString();
-    } catch (err) {
-        throw new Error("Invalid timestamp format. Please provide a valid timestamp format.");
+    } catch {
+        throw new Error("Invalid timestamp format. Please provide a valid timestamp.");
     }
 };
 
-function isISO8601(string) {
-    return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?[+-]\d{2}:\d{2}$/.test(string);
+function isAcceptableTimestamp(input) {
+    // ISO 8601 (with optional Z timezone)
+    const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+    if (isoRegex.test(input)) return true;
+
+    // Discord-style <t:epoch[:style]> (epoch = 10-digit seconds; style one of t,T,d,D,f,F,R)
+    if (/^<t:(\d{10})(:[tTdDfFR])?>$/.test(input)) return true;
+    // Raw Unix epoch digits: 10 (seconds) or 13 (milliseconds)
+    if (/^\d{10}$/.test(input) || /^\d{13}$/.test(input)) return true;
+    // Relative time via timestring with small natural language support
+    try {
+        const normalizedInput = normalizeRelativeTime(input);
+        timestring(normalizedInput, 'ms');
+        return true;
+    } catch {
+        return false;
+    }
 };

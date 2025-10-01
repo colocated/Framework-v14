@@ -4,7 +4,7 @@ const StatusEmbedBuilder = require('../../../structures/funcs/tools/createStatus
 /** @typedef {import("../../../structures/funcs/util/Types").ExtendedClient} ExtendedClient */
 
 module.exports = {
-    id: "ceb_author_i",
+    id: "ceb_author_select",
 
     /**
     * 
@@ -58,11 +58,13 @@ module.exports = {
         if (!response) return;
 
         let doneEmbed = statusEmbed.create("The author has been successfully updated.", 'Green');
-        doneEmbed.setFields({ name: `Field`, value: `${userOption.charAt(0).toUpperCase() + userOption.slice(1)}`, inline: true });
-        
-        await interaction.deferUpdate();
+        doneEmbed.setFields({ name: `New value`, value: `${userOption.charAt(0).toUpperCase() + userOption.slice(1)}`, inline: true });
+
+        if (newEmbed.data.author && (newEmbed.data.author.name || newEmbed.data.author.icon_url) && newEmbed.data.description == "\u200b") newEmbed.setDescription(null);
+        if (!newEmbed.data.title && !newEmbed.data.description && (!newEmbed.data.author || !newEmbed.data.author.name)) newEmbed.setDescription("\u200b");
+
         await referencedMessage.edit({ embeds: [response, instructionsEmbed] });
-        return interaction.editReply({ embeds: [doneEmbed], flags: [MessageFlags.Ephemeral] });
+        return interaction.update({ embeds: [doneEmbed], flags: [MessageFlags.Ephemeral] });
     }
 };
 
