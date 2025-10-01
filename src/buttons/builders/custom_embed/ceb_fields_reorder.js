@@ -130,10 +130,6 @@ function generateComponents(sourceFields = [], sourceIndex = null, destinationIn
         .setLabel('Confirm');
 
     if (destinationIndex !== null) {
-        // Find the option on the destination menu and run setDefault on it
-        const selectedOption = destinationSelectMenu.options.find(option => option.data.value === destinationIndex.toString());
-        if (selectedOption) selectedOption.setDefault(true);
-
         // Prettify the question button to make it more obvious for the user
         // destinationIndex is +2 because we need to +1 to make it human-readable, and then +1 again because reoder positions it AFTER the "destination"
         questionButton.setLabel(`Move field #${sourceIndex + 1} to ${(destinationIndex + 2) == 1 ? `Top` : ((destinationIndex + 2 === 26) ? `Bottom` : `position #${destinationIndex + 2}`)}?`)
