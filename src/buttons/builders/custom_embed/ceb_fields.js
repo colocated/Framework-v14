@@ -75,10 +75,10 @@ module.exports = {
             fieldSelectMenu.setOptions(fieldMap);
         }
 
-        let fieldSelectMenuRow = new ActionRowBuilder()
+        const fieldSelectMenuRow = new ActionRowBuilder()
             .setComponents(fieldSelectMenu);
 
-        let fieldActionsRow = new ActionRowBuilder()
+        const fieldActionsRow = new ActionRowBuilder()
             .setComponents(
                 new ButtonBuilder()
                     .setCustomId(`ceb_fields_add`)
