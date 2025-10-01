@@ -112,6 +112,12 @@ function generateComponents(sourceFields = [], sourceIndex = null, destinationIn
             )
     }
 
+    if (destinationIndex !== null) {
+        // Find the option on the destination menu and run setDefault on it
+        const destOption = destinationSelectMenu.options.find(option => option.data.value === destinationIndex.toString());
+        if (destOption) destOption.setDefault(true);
+    }
+
     // Build confirmation buttons pre-logic, and set the label in the logic, so they can be accessed outside of the check block.
     const questionButton = new ButtonBuilder()
         .setCustomId('ceb_fields_reorder_question')
