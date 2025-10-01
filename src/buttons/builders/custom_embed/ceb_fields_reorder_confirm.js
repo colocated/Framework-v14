@@ -15,9 +15,9 @@ module.exports = {
     */
     async execute(interaction, client) {
         const sourceSelectMenu = interaction.message.components[0].components.find(c => c.customId === 'ceb_fields_reorder_source');
-        const sourceIndex = parseInt(sourceSelectMenu?.data?.options?.find(o => o.default)?.value, 10);
+        const sourceIndex = parseInt(sourceSelectMenu?.data?.options?.find(o => o.default)?.value);
         const destinationSelectMenu = interaction.message.components[1].components.find(c => c.customId === 'ceb_fields_reorder_destination');
-        const destinationIndex = parseInt(destinationSelectMenu?.data?.options?.find(o => o.default)?.value, 10);
+        const destinationIndex = parseInt(destinationSelectMenu?.data?.options?.find(o => o.default)?.value);
 
         if (sourceIndex === 0 && destinationIndex === -1) {
             return interaction.reply({ embeds: [statusEmbed.create('You cannot move this field to the top, as it is already there!', 'Red')], flags: [MessageFlags.Ephemeral] });

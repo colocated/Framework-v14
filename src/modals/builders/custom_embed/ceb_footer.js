@@ -192,13 +192,13 @@ function normalizeRelativeTime(input) {
 function toISO8601(input) {
     // Unix seconds
     if (/^\d{9,12}$/.test(input)) {
-        return new Date(parseInt(input, 10) * 1000).toISOString();
+        return new Date(parseInt(input) * 1000).toISOString();
     }
 
     // Discord-style <t:1234567890:R>
     const discordMatch = input.match(/^<t:(\d{9,12})(:[a-zA-Z])?>$/);
     if (discordMatch) {
-        return new Date(parseInt(discordMatch[1], 10) * 1000).toISOString();
+        return new Date(parseInt(discordMatch[1]) * 1000).toISOString();
     }
 
     // ISO 8601 string (return as is if valid)

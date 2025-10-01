@@ -9,7 +9,7 @@ module.exports = {
     * @param {StringSelectMenuInteraction} interaction 
     */
     async execute(interaction) {
-        const selectedField = parseInt(interaction.values[0], 10);
+        const selectedField = parseInt(interaction.values[0]);
 
         const referencedMessage = await interaction.message.fetchReference();
         const customEmbed = referencedMessage.embeds?.[0];

@@ -17,7 +17,7 @@ module.exports = {
     async execute(interaction, client) {
         const sourceSelect = interaction.message.components?.[0]?.components?.[0];
         const defaultOption = sourceSelect?.data?.options?.find(o => o?.default);
-        const index = defaultOption ? parseInt(defaultOption.value, 10) : NaN;
+        const index = defaultOption ? parseInt(defaultOption.value) : NaN;
 
         const referencedMessage = await interaction.message.fetchReference();
         const customEmbed = referencedMessage.embeds?.[0];
