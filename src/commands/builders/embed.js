@@ -33,11 +33,12 @@ module.exports = {
     async autocomplete(interaction, client) {
         let userFocus = interaction.options.getFocused().replace('#', '');
 
+        const idValue = Number.isNaN(parseInt(userFocus)) ? undefined : parseInt(userFocus);
         let savedEmbeds = await client.db.embed.findMany({
             where: {
                 OR: [
                     { name: { contains: userFocus } },
-                    { id: { startsWith: userFocus } }
+                    ...(idValue !== undefined ? [{ id: { equals: idValue } }] : [])
                 ]
             },
         });
@@ -45,7 +46,7 @@ module.exports = {
         let choices = savedEmbeds.map(embed => {
             return {
                 name: `#${embed.id} | ${embed.name}`,
-                value: embed.id
+                value: embed.id.toString()
             };
         });
 
