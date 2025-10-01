@@ -58,14 +58,5 @@ module.exports = {
 
         components.push(aysRow);
         return interaction.update({ components });
-
-        // const referencedMessage = await interaction.message.fetchReference();
-        // const customEmbed = referencedMessage.embeds[0];
-        // const field = customEmbed.fields[index];
-
-        // if (!field) return interaction.reply({
-        //     embeds: [statusEmbed.create("There was an error locating the field. Has it been deleted?", 'Red')],
-        //     flags: MessageFlags.Ephemeral
-        // });
     }
 };
