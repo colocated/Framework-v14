@@ -51,7 +51,6 @@ module.exports = {
         });
 
         if (!choices.length) choices = [{ name: "No embeds found", value: "none" }];
-
         return interaction.respond(choices);
     },
 
