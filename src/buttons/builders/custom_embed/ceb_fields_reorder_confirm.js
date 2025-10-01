@@ -45,6 +45,9 @@ module.exports = {
         fields.splice(removeIndex, 1);
 
         await referencedMessage.edit({ embeds: [customEmbed, instructionsEmbed] });
-        return interaction.update({ embeds: [statusEmbed.create(`**Field #${sourceIndex + 1}** has been moved successfully to **position #${destinationIndex + 1}**.`, 'Green')], components: [] });
+
+        const finalPos = Math.max(destinationIndex + 1, 1);
+        const positionText = finalPos === 1 ? 'Top' : (finalPos === fields.length ? 'Bottom' : `position #${finalPos}`);
+        return interaction.update({ embeds: [statusEmbed.create(`**Field #${sourceIndex + 1}** has been moved successfully to **${positionText}**.`, 'Green')], components: [] });
     }
 };
