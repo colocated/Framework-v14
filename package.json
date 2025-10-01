@@ -54,8 +54,5 @@
             "esbuild",
             "prisma"
         ]
-    },
-    "volta": {
-        "node": "22.20.0"
     }
 }
