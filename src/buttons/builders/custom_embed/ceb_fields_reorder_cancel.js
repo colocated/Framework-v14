@@ -15,7 +15,13 @@ module.exports = {
         const referencedMessage = await interaction.message.fetchReference();
         const customEmbed = referencedMessage.embeds?.[0];
 
-        if (!customEmbed || !Array.isArray(customEmbed.fields)) return interaction.reply({ embeds: [statusEmbed.create('We could not find the custom embed or its fields. Has it been deleted?', 'Red')] });
+        if (!customEmbed || !Array.isArray(customEmbed.fields)) { 
+            return interaction.reply({
+                embeds: [statusEmbed.create('We could not find the custom embed or its fields. Has it been deleted?', 'Red')],
+                flags: [MessageFlags.Ephemeral] 
+            });
+        }
+
         const customFields = customEmbed.fields;
 
         const actionRows = generateComponents(customFields);
