@@ -90,7 +90,7 @@ module.exports = {
         }
 
         let newEmbed = EmbedBuilder.from(customEmbed);
-        let doneEmbed = statusEmbed.create("The author has been successfully updated.", 'Green');
+        let doneEmbed = statusEmbed.create("The embed images have been successfully updated.", 'Green');
 
         const updates = [
             { field: "thumbnail", value: thumbnail },
