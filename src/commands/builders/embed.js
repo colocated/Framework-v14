@@ -84,6 +84,13 @@ async function create(interaction, client) {
     return interaction.reply({ embeds: [customEmbed, explainEmbed], components: [actionRow1, actionRow2, actionRow3] });
 };
 
+/**
+ * 
+ * @param {ChatInputCommandInteraction} interaction 
+ * @param {ExtendedClient} client 
+ * @param {Object|String} embedData 
+ * @returns 
+ */
 function generateComponents(interaction, client, embedData = null) {
     const explainEmbed = new EmbedBuilder()
         .setTitle(`Custom Embed Builder`)
