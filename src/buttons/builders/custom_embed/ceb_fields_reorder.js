@@ -20,9 +20,9 @@ module.exports = {
             .setDescription('Use the 2 select menus below to select a field to move, and where it should move to. The select field in the top menu will be inserted **after** the field selected in the bottom menu.\n\nIf you want to move a field to the top, select **Move to top** in the bottom menu.')
 
         const referencedMessage = await interaction.message.fetchReference();
-        const customEmbed = referencedMessage.embeds[0];
-        const customFields = customEmbed.fields;
-        const instructionsEmbed = referencedMessage.embeds[1];
+        const customEmbed = referencedMessage.embeds?.[0];
+        const instructionsEmbed = referencedMessage.embeds?.[1];
+        const customFields = customEmbed?.fields;
 
         if (!customEmbed || !instructionsEmbed || !Array.isArray(customFields) || customFields.length < 2) {
             return interaction.reply({
