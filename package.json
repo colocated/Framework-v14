@@ -31,7 +31,7 @@
         "chalk": "^4.1.2",
         "date-and-time": "^4.0.5",
         "discord.js": "^14.22.1",
-        "dotenv": "^17.2.2",
+        "dotenv": "^17.2.3",
         "fs-extra": "^11.3.2",
         "glob": "^11.0.3",
         "node-cron": "^4.2.1",
