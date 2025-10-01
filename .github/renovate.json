@@ -1,16 +1,20 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": ["config:base"],
-    
-    "ignoreDeps": ["chalk"],
-    "labels": ["dependencies"],
-    
+    "extends": [
+        "config:recommended"
+    ],
+    "ignoreDeps": [
+        "chalk"
+    ],
+    "labels": [
+        "dependencies"
+    ],
     "packageRules": [
         {
-            "matchPackagePatterns": [
+            "automerge": false,
+            "matchPackageNames": [
                 "*"
-            ],
-            "automerge": false
+            ]
         }
     ]
 }
