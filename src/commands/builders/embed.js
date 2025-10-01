@@ -155,5 +155,13 @@ function generateComponents(interaction, client, embedData = null) {
  * @returns 
  */
 async function load(interaction, client) {
-    return interaction.reply({ content: `Loading embed: ${interaction.options.getString("name")}` });
+    const embedId = parseInt(interaction.options.getString("name"));    
+    if (isNaN(embedId)) return interaction.reply({ content: "Please provide select a valid embed from the list.", flags: [MessageFlags.Ephemeral] });
+
+    let savedEmbed = await client.db.embed.findFirst({ where: { id: { equals: embedId } } });
+    if (!savedEmbed) return interaction.reply({ content: "I couldn't find that embed in the database. It may have been deleted.", flags: [MessageFlags.Ephemeral] });
+
+    const { explainEmbed, customEmbed, actionRow1, actionRow2, actionRow3 } = generateComponents(interaction, client, savedEmbed.embedJson);
+    await interaction.reply({ embeds: [customEmbed, explainEmbed], components: [actionRow1, actionRow2, actionRow3] });
+    return interaction.followUp({ content: `Successfully loaded embed **#${savedEmbed.id} | ${savedEmbed.name}** from the database.`, flags: [MessageFlags.Ephemeral] });
 };
