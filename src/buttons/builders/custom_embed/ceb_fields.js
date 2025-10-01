@@ -13,7 +13,7 @@ module.exports = {
     async execute(interaction, client) {
         const manageFieldsEmbed = this.generateEmbeds(client);
         const fields = interaction.message.embeds[0]?.fields ?? [];
-        const [fieldSelectMenuRow, fieldActions] = this.generateComponents(fields, interaction);
+        const [fieldSelectMenuRow, fieldActions] = this.generateComponents(fields);
 
         return interaction.reply({
             embeds: [manageFieldsEmbed],

@@ -14,15 +14,16 @@ module.exports = {
     * @param {ExtendedClient} client 
     */
     async execute(interaction, client) {
-        const index = parseInt(interaction.message.components[0].components[0].data.options.find(o => o?.default === true).value);
+        const sourceSelect = interaction.message.components?.[0]?.components?.[0];
+        const defaultOption = sourceSelect?.data?.options?.find(o => o?.default === true);
+        const index = defaultOption ? parseInt(defaultOption.value, 10) : NaN;
         const referencedMessage = await interaction.message.fetchReference();
-        const customEmbed = referencedMessage.embeds[0];
-        const field = customEmbed.fields[index];
-
-        if (!field) return interaction.reply({
+        const customEmbed = referencedMessage.embeds?.[0];
+        if (!Number.isInteger(index) || !customEmbed || !Array.isArray(customEmbed.fields) || index < 0 || index >= customEmbed.fields.length) return interaction.reply({
             embeds: [statusEmbed.create("There was an error locating the field. Has it been deleted?", 'Red')],
             flags: MessageFlags.Ephemeral
         });
+        const field = customEmbed.fields[index];
 
         const aysRow = new ActionRowBuilder()
             .setComponents(

@@ -79,12 +79,17 @@ function generateComponents(sourceFields = [], sourceIndex = null, destinationIn
         sourceSelectMenu
             .setPlaceholder('Select a field to move')
             .setDisabled(false)
-            .setOptions(sourceFields.map((field, index) => {
-                return new StringSelectMenuOptionBuilder()
-                    .setLabel(field.name.length > 100 ? field.name.slice(0, 96) + '...' : field.name)
-                    .setValue(index.toString())
-                    .setDescription(field.value.length > 100 ? field.value.slice(0, 96) + '...' : field.value);
-            }));
+            .setOptions(
+                sourceFields.map((field, index) => {
+                    const name = field?.name ?? 'Untitled';
+                    const value = field?.value ?? '—';
+                    return new StringSelectMenuOptionBuilder()
+                        .setLabel(name.length > 100 ? name.slice(0, 96) + '...' : name)
+                        .setValue(index.toString())
+                        .setDescription(value.length > 100 ? value.slice(0, 96) + '...' : value)
+                        .setDefault(sourceIndex !== null && index === sourceIndex);
+                })
+            );
     }
 
     const destinationSelectMenu = new StringSelectMenuBuilder()
