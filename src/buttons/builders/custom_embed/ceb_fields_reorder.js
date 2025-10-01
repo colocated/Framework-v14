@@ -1,5 +1,8 @@
 const { ButtonInteraction, EmbedBuilder, MessageFlags, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
+const StatusEmbedBuilder = require('../../../structures/funcs/tools/createStatusEmbed');
+const statusEmbed = new StatusEmbedBuilder("Fields", { name: "Embed Builder" });
+
 /** @typedef {import("../../../structures/funcs/util/Types").ExtendedClient} ExtendedClient */
 
 module.exports = {
