@@ -27,9 +27,9 @@ module.exports = {
             });
         }
 
-        if (url && !name) {
+        if (url && !name || iconURL && !name) {
             return interaction.editReply({
-                embeds: [statusEmbed.create("You must provide a name if you want to set a URL.", 'Red')],
+                embeds: [statusEmbed.create("You must provide a name if you want to set a URL or Icon URL.", 'Red')],
                 flags: MessageFlags.Ephemeral
             });
         }
