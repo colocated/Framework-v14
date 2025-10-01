@@ -17,7 +17,7 @@ module.exports = {
         const reorderEmbed = new EmbedBuilder()
             .setColor(client.config.color ?? 'DarkButNotBlack')
             .setTitle('Reorder Fields')
-            .setDescription('Use the 2 select menus below to select a field to move, and where it should move to. The select field in the top menu will be inserted **after** the field selected in the bottom menu.\n\nIf you want to move a field to the top, select **Move to top** in the bottom menu.')
+            .setDescription('Use the two select menus below to choose a field to move and its new position. The field will be placed at the position you select.\n\nTo move a field to the top, select **Move to top** in the second menu.')
 
         const referencedMessage = await interaction.message.fetchReference();
         const customEmbed = referencedMessage.embeds?.[0];
