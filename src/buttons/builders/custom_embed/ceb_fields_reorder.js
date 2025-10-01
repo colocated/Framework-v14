@@ -33,19 +33,6 @@ module.exports = {
 
         const actionRows = generateComponents(customFields);
         return interaction.update({ embeds: [reorderEmbed], components: [...actionRows], flags: MessageFlags.Ephemeral });
-
-        // FLOW:
-        // User presses "Reorder Fields" button
-        // Bot responds with existing list of fields
-        // User selects field to move from top select menu
-        // 2nd select menu gets enabled with list of fields minus the one selected in the top menu, plus "Move to top" option
-        // User selects the 2nd field
-        // Confirm and cancel buttons spawn under that
-        // Bot does or cancels as requested
-
-        // Menus:
-        // This file - spawn the first and disabled 2nd menu
-        // ceb_fields_reorder_source - User selects a field, it runs generateComponents to set the default on the source menu and enable + populate the destination menu
     },
 
     generateComponents
