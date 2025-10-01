@@ -81,18 +81,22 @@ module.exports = {
  * @returns 
  */
 async function create(interaction, client) {
-    let explainEmbed = new EmbedBuilder()
+    const { explainEmbed, customEmbed, actionRow1, actionRow2, actionRow3 } = generateComponents(interaction, client);
+    return interaction.reply({ embeds: [customEmbed, explainEmbed], components: [actionRow1, actionRow2, actionRow3] });
+};
+
+function generateComponents(interaction, client, embedData = null) {
+    const explainEmbed = new EmbedBuilder()
         .setTitle(`Custom Embed Builder`)
         .setDescription(`You can create a custom embed using the options below.\nThe embed above is the preview of the embed you are creating.`)
         .setColor(client.config.color ?? 'DarkButNotBlack')
         .setFooter({ text: `Created by @${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() })
         .setTimestamp();
 
-    let emptyEmbed = new EmbedBuilder()
-        .setColor(client.config.color ?? 'DarkButNotBlack')
-        .setDescription(`\u200b`);
+    let embedObj; if (typeof embedData === 'string') embedObj = JSON.parse(embedData); else embedObj = embedData;
+    const customEmbed = embedData ? EmbedBuilder.from(embedObj) : new EmbedBuilder().setColor(client.config.color ?? 'DarkButNotBlack').setDescription(`\u200b`);
 
-    let actionRow1 = new ActionRowBuilder()
+    const actionRow1 = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
                 .setCustomId("ceb_title")
@@ -105,7 +109,7 @@ async function create(interaction, client) {
                 .setStyle(ButtonStyle.Primary),
         );
 
-    let actionRow2 = new ActionRowBuilder()
+    const actionRow2 = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
                 .setCustomId("ceb_thumbnail")
@@ -123,7 +127,7 @@ async function create(interaction, client) {
                 .setStyle(ButtonStyle.Primary)
         );
 
-    let actionRow3 = new ActionRowBuilder()
+    const actionRow3 = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
                 .setCustomId("ceb_save")
@@ -141,8 +145,8 @@ async function create(interaction, client) {
                 .setStyle(ButtonStyle.Danger)
         );
 
-    return interaction.reply({ embeds: [emptyEmbed, explainEmbed], components: [actionRow1, actionRow2, actionRow3] });
-};
+    return { explainEmbed, customEmbed, actionRow1, actionRow2, actionRow3 };
+}
 
 /**
  * 
