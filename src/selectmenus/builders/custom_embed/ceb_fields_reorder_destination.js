@@ -10,10 +10,10 @@ module.exports = {
     */
     async execute(interaction) {
         const sourceSelectMenu = interaction.message.components[0].components.find(c => c.customId === 'ceb_fields_reorder_source');
-        const sourceIndex = parseInt(sourceSelectMenu.data.options.find(o => o.default)?.value);
-        const destinationIndex = parseInt(interaction.values[0]);
+        const sourceIndex = parseInt(sourceSelectMenu?.data?.options?.find(o => o.default)?.value, 10);
+        const destinationIndex = parseInt(interaction.values[0], 10);
 
-        if (!sourceSelectMenu || isNaN(sourceIndex) || isNaN(destinationIndex)) {
+        if (!sourceSelectMenu || Number.isNaN(sourceIndex) || Number.isNaN(destinationIndex)) {
             return interaction.reply({
                 content: "There was an error processing your selection. Please try again.",
                 flags: [MessageFlags.Ephemeral]
