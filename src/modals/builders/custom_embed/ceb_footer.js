@@ -190,24 +190,16 @@ function normalizeRelativeTime(input) {
         .replace(/\ban?\s+(day|hour|minute|second)s?\b/gi, "1 $1");
 }
 function toISO8601(input) {
-    // Unix seconds (10 digits)
-    if (/^\d{10}$/.test(input)) {
+    // Unix seconds
+    if (/^\d{9,12}$/.test(input)) {
         return new Date(parseInt(input) * 1000).toISOString();
     }
 
-    // Unix milliseconds (13 digits)
-    if (/^\d{13}$/.test(input)) {
-        return new Date(parseInt(input)).toISOString();
-    }
-
-    // Discord-style <t:epoch[:style]> (epoch = 10-digit seconds; style one of t,T,d,D,f,F,R)
-    const discordMatch = input.match(/^<t:(\d{10})(:[tTdDfFR])?>$/);
+    // Discord-style <t:1234567890:R>
+    const discordMatch = input.match(/^<t:(\d{9,12})(:[a-zA-Z])?>$/);
     if (discordMatch) {
         return new Date(parseInt(discordMatch[1]) * 1000).toISOString();
     }
-
-    // …rest of parsing logic…
-}
 
     // ISO 8601 string (return as is if valid)
     const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
