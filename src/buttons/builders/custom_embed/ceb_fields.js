@@ -78,6 +78,7 @@ module.exports = {
         const fieldSelectMenuRow = new ActionRowBuilder()
             .setComponents(fieldSelectMenu);
 
+        const hasSelection = Number.isInteger(defaultIndex);
         const fieldActionsRow = new ActionRowBuilder()
             .setComponents(
                 new ButtonBuilder()
@@ -90,13 +91,13 @@ module.exports = {
                     .setCustomId(`ceb_fields_edit`)
                     .setLabel(`Edit Field`)
                     .setStyle(ButtonStyle.Primary)
-                    .setDisabled(!fieldSelectMenu.options.find(o => o.data?.default)), // Disabled if the select menu hasn't been used
+                    .setDisabled(!hasSelection), // Disabled if the select menu hasn't been used
 
                 new ButtonBuilder()
                     .setCustomId(`ceb_fields_delete`)
                     .setLabel(`Delete Field`)
                     .setStyle(ButtonStyle.Danger)
-                    .setDisabled(!fieldSelectMenu.options.find(o => o.data?.default)), // Disabled if the select menu hasn't been used
+                    .setDisabled(!hasSelection), // Disabled if the select menu hasn't been used
 
                 new ButtonBuilder()
                     .setCustomId(`ceb_fields_reorder`)
