@@ -9,13 +9,13 @@ module.exports = {
     * @param {StringSelectMenuInteraction} interaction 
     */
     async execute(interaction) {
-        const selectedField = parseInt(interaction.values[0]);
+        const selectedField = parseInt(interaction.values[0], 10);
 
         const referencedMessage = await interaction.message.fetchReference();
-        const customEmbed = referencedMessage.embeds[0];
-        const customFields = customEmbed.fields;
+        const customEmbed = referencedMessage.embeds?.[0];
+        const customFields = Array.isArray(customEmbed?.fields) ? customEmbed.fields : null;
 
-        if (!customEmbed || !Array.isArray(customFields) || customFields.length < 2 || selectedField < 0 || selectedField >= customFields.length) {
+        if (!customFields || customFields.length < 2 || Number.isNaN(selectedField) || selectedField < 0 || selectedField >= customFields.length) {
             return interaction.reply({
                 content: "There was an error locating the custom embed or it doesn't have the required amount of fields. Has it been deleted?",
                 flags: [MessageFlags.Ephemeral]
