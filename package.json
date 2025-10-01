@@ -10,7 +10,7 @@
         "postinstall": "node ./scripts/postinstall.js"
     },
     "engines": {
-        "node": ">=22.19"
+        "node": ">=22.20"
     },
     "repository": {
         "type": "git",
