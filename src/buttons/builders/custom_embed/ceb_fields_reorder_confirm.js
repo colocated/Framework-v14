@@ -27,7 +27,8 @@ module.exports = {
         const customEmbed = referencedMessage.embeds?.[0];
         const instructionsEmbed = referencedMessage.embeds?.[1];
         const fields = customEmbed?.data?.fields;
-        if (!Array.isArray(fields) || fields.length < 2 || !Number.isInteger(sourceIndex) || sourceIndex < 0 || sourceIndex >= fields.length || !(Number.isInteger(destinationIndex) || destinationIndex === -1) || destinationIndex < -1 || destinationIndex >= fields.length) {
+        console.log(!Array.isArray(fields), fields.length < 2, !Number.isInteger(sourceIndex), sourceIndex < 0, sourceIndex >= fields.length, !(Number.isInteger(destinationIndex), destinationIndex === -1), destinationIndex < -1, destinationIndex >= fields.length);
+        if (!Array.isArray(fields) || fields.length < 2 || !Number.isInteger(sourceIndex) || sourceIndex < 0 || sourceIndex >= fields.length || destinationIndex < -1 || destinationIndex >= fields.length) {
             return interaction.reply({ embeds: [statusEmbed.create('There was an error processing your selection. Please try again.', 'Red')], flags: [MessageFlags.Ephemeral] });
         }
         
