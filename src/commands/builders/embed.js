@@ -113,7 +113,9 @@ function generateComponents(interaction, client, embedData = null) {
         .setFooter({ text: `Created by @${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() })
         .setTimestamp();
 
-    let embedObj; if (typeof embedData === 'string') embedObj = JSON.parse(embedData); else embedObj = embedData;
+    let embedObj;
+    try { if (typeof embedData === 'string') embedObj = JSON.parse(embedData); else embedObj = embedData; }
+    catch (error) { console.error("Error parsing embed data:", error); embedData = null; }
     const customEmbed = embedData ? EmbedBuilder.from(embedObj) : new EmbedBuilder().setColor(client.config.color ?? 'DarkButNotBlack').setDescription(`\u200b`);
 
     const actionRow1 = new ActionRowBuilder()
