@@ -23,6 +23,18 @@ module.exports = {
                             .setRequired(true)
                             .setAutocomplete(true)
                     )
+        )
+        
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName("delete")
+                .setDescription("Delete a saved custom embed")
+                .addStringOption(option =>
+                    option.setName("name")
+                        .setDescription("The name of the embed")
+                        .setRequired(true)
+                        .setAutocomplete(true)
+                )
         ),
     
     /**
@@ -67,6 +79,8 @@ module.exports = {
                 return create(interaction, client);
             case "load":
                 return load(interaction, client);
+            case "delete":
+                return deleteEmbed(interaction, client); // Can't use delete() as it's a reserved word
 
             default: return interaction.reply({ content: "Sorry, that subcommand hasn't been implemented.", flags: [MessageFlags.Ephemeral] });
         };
@@ -170,4 +184,37 @@ async function load(interaction, client) {
     const { explainEmbed, customEmbed, actionRow1, actionRow2, actionRow3 } = generateComponents(interaction, client, savedEmbed.embedJson);
     await interaction.reply({ embeds: [customEmbed, explainEmbed], components: [actionRow1, actionRow2, actionRow3] });
     return interaction.followUp({ content: `Successfully loaded embed **#${savedEmbed.id} | ${savedEmbed.name}** from the database.`, flags: [MessageFlags.Ephemeral] });
+};
+
+/**
+ * @param {ChatInputCommandInteraction} interaction
+ * @param {ExtendedClient} client
+ */
+async function deleteEmbed(interaction, client) {
+    const embedId = parseInt(interaction.options.getString("name"));
+    if (isNaN(embedId)) return interaction.reply({ content: "Please provide select a valid embed from the list.", flags: [MessageFlags.Ephemeral] });
+
+    let savedEmbed = await client.db.embed.findFirst({ where: { id: { equals: embedId } } });
+    if (!savedEmbed) return interaction.reply({ content: "I couldn't find that embed in the database. It may have been deleted.", flags: [MessageFlags.Ephemeral] });
+
+    let embedObj; if (typeof savedEmbed.embedJson === "string") embedObj = JSON.parse(savedEmbed.embedJson); else embedObj = savedEmbed.embedJson;
+    const customEmbed = EmbedBuilder.from(embedObj);
+    const deleteConfirmation = new EmbedBuilder()
+        .setColor(client.config.color ?? 'DarkButNotBlack')
+        .setDescription(`Are you sure you want to delete the embed **#${savedEmbed.id} | ${savedEmbed.name}**? This action cannot be undone.`)
+        .setFooter({ text: `A preview of the embed is shown above.` });
+
+    const actionRow = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId("ceb_delete_confirm")
+                .setLabel("Confirm Delete")
+                .setStyle(ButtonStyle.Danger),
+            new ButtonBuilder()
+                .setCustomId("ceb_cancel")
+                .setLabel("Cancel")
+                .setStyle(ButtonStyle.Secondary)
+        );
+
+    return interaction.reply({ embeds: [customEmbed, deleteConfirmation], components: [actionRow] });
 };
