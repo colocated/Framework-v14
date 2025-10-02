@@ -207,7 +207,7 @@ async function deleteEmbed(interaction, client) {
     const actionRow = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
-                .setCustomId("ceb_delete_confirm")
+                .setCustomId(`ceb_delete_confirm$$${savedEmbed.id}`)
                 .setLabel("Confirm Delete")
                 .setStyle(ButtonStyle.Danger),
             new ButtonBuilder()
