@@ -5,6 +5,7 @@ const statusEmbed = new StatusEmbedBuilder("Save", { name: "Embed Builder" });
 
 module.exports = {
     id: "ceb_save",
+    invokerOnly: true,
 
     /**
     * 

@@ -4,6 +4,7 @@ const { remove } = require('../../commands/developer/blacklist');
 
 module.exports = {
     id: "blacklist-remove",
+    invokerOnly: true,
     developer: true,
 
     /**

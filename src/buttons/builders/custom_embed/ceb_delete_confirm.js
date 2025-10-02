@@ -8,6 +8,7 @@ const statusEmbed = new StatusEmbedBuilder('Delete Saved Embed', { name: 'Embed 
 
 module.exports = {
     id: "ceb_delete_confirm",
+    invokerOnly: true,
 
     /**
     * 
