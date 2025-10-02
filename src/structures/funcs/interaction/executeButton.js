@@ -115,7 +115,7 @@ async function executeButton(interaction, client) {
     };
 
     /** Log & Execute the button */
-    Logger.log(`${interaction.channel.isDMBased() ? `DMs` : `${interaction.guild.name}`} | ${interaction.user.tag} | 🔘 ${customId}`);
+    Logger.log(`${interaction.channel.isDMBased() ? `DMs` : `${interaction.guild.name}`} | ${interaction.user.tag} | 🔘 ${customId} ${extraArgs ? `[${extraArgs.join(", ")}]` : ""}`);
     return button.execute(interaction, client, extraArgs);
 };
 
