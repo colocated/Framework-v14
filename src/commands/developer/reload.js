@@ -45,7 +45,7 @@ module.exports = {
         const type = interaction.options.getString("type");
         let embed = new EmbedBuilder()
         .setTitle(`🔃 Reloaded!`)
-        .setDescription(`Successfully reloaded for ${type === 'all' ? '' : 'all '}**${type}**!`)
+        .setDescription(`Successfully reloaded ${type === 'all' ? '' : 'all '}**${type}**!`)
         .setColor(client.config.color ?? 'DarkButNotBlack');
 
         switch(type) {
@@ -79,6 +79,6 @@ module.exports = {
         }
 
         await interaction.reply({ embeds: [embed], flags: [MessageFlags.Ephemeral] });
-        return Logger.warn(`[Reload] @${interaction.user.username} triggered a reload for all ${type}.`);
+        return Logger.warn(`[Reload] @${interaction.user.username} triggered a reload for ${type === 'all' ? `` : `all `}${type}.`);
     }
 };
