@@ -88,6 +88,23 @@ module.exports = {
 };
 
 /**
+ * Safely parses embed data from string or object.
+ * @param {string|object} embedData
+ * @returns {object|null}
+ */
+function parseEmbedData(embedData) {
+    let embedObj;
+    try {
+        if (typeof embedData === 'string') embedObj = JSON.parse(embedData);
+        else embedObj = embedData;
+    } catch (error) {
+        console.error("Error parsing embed data:", error);
+        embedObj = null;
+    }
+    return embedObj;
+}
+
+/**
  * 
  * @param {ChatInputCommandInteraction} interaction 
  * @param {ExtendedClient} client 
@@ -113,10 +130,8 @@ function generateComponents(interaction, client, embedData = null) {
         .setFooter({ text: `Created by @${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() })
         .setTimestamp();
 
-    let embedObj;
-    try { if (typeof embedData === 'string') embedObj = JSON.parse(embedData); else embedObj = embedData; }
-    catch (error) { console.error("Error parsing embed data:", error); embedData = null; }
-    const customEmbed = embedData ? EmbedBuilder.from(embedObj) : new EmbedBuilder().setColor(client.config.color ?? 'DarkButNotBlack').setDescription(`\u200b`);
+    const embedObj = embedData ? parseEmbedData(embedData) : null;
+    const customEmbed = embedObj ? EmbedBuilder.from(embedObj) : new EmbedBuilder().setColor(client.config.color ?? 'DarkButNotBlack').setDescription(`\u200b`);
 
     const actionRow1 = new ActionRowBuilder()
         .addComponents(
@@ -183,6 +198,9 @@ async function load(interaction, client) {
     let savedEmbed = await client.db.embed.findFirst({ where: { id: { equals: embedId } } });
     if (!savedEmbed) return interaction.reply({ content: "I couldn't find that embed in the database. It may have been deleted.", flags: [MessageFlags.Ephemeral] });
 
+    const embedObj = parseEmbedData(savedEmbed.embedJson);
+    if (!embedObj) return interaction.reply({ content: "There was an error loading the embed data. It may have been corrupted.", flags: [MessageFlags.Ephemeral] });
+
     const { explainEmbed, customEmbed, actionRow1, actionRow2, actionRow3 } = generateComponents(interaction, client, savedEmbed.embedJson);
     await interaction.reply({ embeds: [customEmbed, explainEmbed], components: [actionRow1, actionRow2, actionRow3] });
     return interaction.followUp({ content: `Successfully loaded embed **#${savedEmbed.id} | ${savedEmbed.name}** from the database.`, flags: [MessageFlags.Ephemeral] });
@@ -203,7 +221,9 @@ async function deleteEmbed(interaction, client) {
         return interaction.reply({ content: `You do not have permission to delete this embed.\n<@${savedEmbed.createdBy}> created this embed. They, or a server admin, can delete it.`, flags: [MessageFlags.Ephemeral] });
     }
 
-    let embedObj; if (typeof savedEmbed.embedJson === "string") embedObj = JSON.parse(savedEmbed.embedJson); else embedObj = savedEmbed.embedJson;
+    const embedObj = parseEmbedData(savedEmbed.embedJson);
+    if (!embedObj) return interaction.reply({ content: "There was an error loading the embed data. It may have been corrupted.", flags: [MessageFlags.Ephemeral] });
+
     const customEmbed = EmbedBuilder.from(embedObj);
     const deleteConfirmation = new EmbedBuilder()
         .setColor(client.config.color ?? 'DarkButNotBlack')
