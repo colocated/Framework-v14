@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ChatInputCommandInteraction, AutocompleteInteraction, EmbedBuilder, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, ChatInputCommandInteraction, AutocompleteInteraction, EmbedBuilder, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
 
 /** @typedef {import("../../structures/funcs/util/Types").ExtendedClient} ExtendedClient */
 
@@ -23,6 +23,18 @@ module.exports = {
                             .setRequired(true)
                             .setAutocomplete(true)
                     )
+        )
+        
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName("delete")
+                .setDescription("Delete a saved custom embed")
+                .addStringOption(option =>
+                    option.setName("name")
+                        .setDescription("The name of the embed")
+                        .setRequired(true)
+                        .setAutocomplete(true)
+                )
         ),
     
     /**
@@ -33,11 +45,12 @@ module.exports = {
     async autocomplete(interaction, client) {
         let userFocus = interaction.options.getFocused().replace('#', '');
 
+        const idValue = Number.isNaN(parseInt(userFocus)) ? undefined : parseInt(userFocus);
         let savedEmbeds = await client.db.embed.findMany({
             where: {
                 OR: [
                     { name: { contains: userFocus } },
-                    { id: { startsWith: userFocus } }
+                    ...(idValue !== undefined ? [{ id: { equals: idValue } }] : [])
                 ]
             },
         });
@@ -45,12 +58,11 @@ module.exports = {
         let choices = savedEmbeds.map(embed => {
             return {
                 name: `#${embed.id} | ${embed.name}`,
-                value: embed.id
+                value: embed.id.toString()
             };
         });
 
         if (!choices.length) choices = [{ name: "No embeds found", value: "none" }];
-
         return interaction.respond(choices);
     },
 
@@ -67,11 +79,30 @@ module.exports = {
                 return create(interaction, client);
             case "load":
                 return load(interaction, client);
+            case "delete":
+                return deleteEmbed(interaction, client); // Can't use delete() as it's a reserved word
 
             default: return interaction.reply({ content: "Sorry, that subcommand hasn't been implemented.", flags: [MessageFlags.Ephemeral] });
         };
     }
 };
+
+/**
+ * Safely parses embed data from string or object.
+ * @param {string|object} embedData
+ * @returns {object|null}
+ */
+function parseEmbedData(embedData) {
+    let embedObj;
+    try {
+        if (typeof embedData === 'string') embedObj = JSON.parse(embedData);
+        else embedObj = embedData;
+    } catch (error) {
+        console.error("Error parsing embed data:", error);
+        embedObj = null;
+    }
+    return embedObj;
+}
 
 /**
  * 
@@ -80,18 +111,29 @@ module.exports = {
  * @returns 
  */
 async function create(interaction, client) {
-    let explainEmbed = new EmbedBuilder()
+    const { explainEmbed, customEmbed, actionRow1, actionRow2, actionRow3 } = generateComponents(interaction, client);
+    return interaction.reply({ embeds: [customEmbed, explainEmbed], components: [actionRow1, actionRow2, actionRow3] });
+};
+
+/**
+ * 
+ * @param {ChatInputCommandInteraction} interaction 
+ * @param {ExtendedClient} client 
+ * @param {Object|String} embedData 
+ * @returns 
+ */
+function generateComponents(interaction, client, embedData = null) {
+    const explainEmbed = new EmbedBuilder()
         .setTitle(`Custom Embed Builder`)
         .setDescription(`You can create a custom embed using the options below.\nThe embed above is the preview of the embed you are creating.`)
         .setColor(client.config.color ?? 'DarkButNotBlack')
         .setFooter({ text: `Created by @${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() })
         .setTimestamp();
 
-    let emptyEmbed = new EmbedBuilder()
-        .setColor(client.config.color ?? 'DarkButNotBlack')
-        .setDescription(`\u200b`);
+    const embedObj = embedData ? parseEmbedData(embedData) : null;
+    const customEmbed = embedObj ? EmbedBuilder.from(embedObj) : new EmbedBuilder().setColor(client.config.color ?? 'DarkButNotBlack').setDescription(`\u200b`);
 
-    let actionRow1 = new ActionRowBuilder()
+    const actionRow1 = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
                 .setCustomId("ceb_title")
@@ -104,7 +146,7 @@ async function create(interaction, client) {
                 .setStyle(ButtonStyle.Primary),
         );
 
-    let actionRow2 = new ActionRowBuilder()
+    const actionRow2 = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
                 .setCustomId("ceb_thumbnail")
@@ -122,13 +164,12 @@ async function create(interaction, client) {
                 .setStyle(ButtonStyle.Primary)
         );
 
-    let actionRow3 = new ActionRowBuilder()
+    const actionRow3 = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
                 .setCustomId("ceb_save")
                 .setLabel("Save")
-                .setStyle(ButtonStyle.Success)
-                .setDisabled(true),
+                .setStyle(ButtonStyle.Success),
 
             new ButtonBuilder()
                 .setCustomId("ceb_send")
@@ -141,8 +182,8 @@ async function create(interaction, client) {
                 .setStyle(ButtonStyle.Danger)
         );
 
-    return interaction.reply({ embeds: [emptyEmbed, explainEmbed], components: [actionRow1, actionRow2, actionRow3] });
-};
+    return { explainEmbed, customEmbed, actionRow1, actionRow2, actionRow3 };
+}
 
 /**
  * 
@@ -151,5 +192,55 @@ async function create(interaction, client) {
  * @returns 
  */
 async function load(interaction, client) {
-    return interaction.reply({ content: `Loading embed: ${interaction.options.getString("name")}` });
+    const embedId = parseInt(interaction.options.getString("name"));    
+    if (isNaN(embedId)) return interaction.reply({ content: "Please provide select a valid embed from the list.", flags: [MessageFlags.Ephemeral] });
+
+    let savedEmbed = await client.db.embed.findFirst({ where: { id: { equals: embedId } } });
+    if (!savedEmbed) return interaction.reply({ content: "I couldn't find that embed in the database. It may have been deleted.", flags: [MessageFlags.Ephemeral] });
+
+    const embedObj = parseEmbedData(savedEmbed.embedJson);
+    if (!embedObj) return interaction.reply({ content: "There was an error loading the embed data. It may have been corrupted.", flags: [MessageFlags.Ephemeral] });
+
+    const { explainEmbed, customEmbed, actionRow1, actionRow2, actionRow3 } = generateComponents(interaction, client, savedEmbed.embedJson);
+    await interaction.reply({ embeds: [customEmbed, explainEmbed], components: [actionRow1, actionRow2, actionRow3] });
+    return interaction.followUp({ content: `Successfully loaded embed **#${savedEmbed.id} | ${savedEmbed.name}** from the database.`, flags: [MessageFlags.Ephemeral] });
+};
+
+/**
+ * @param {ChatInputCommandInteraction} interaction
+ * @param {ExtendedClient} client
+ */
+async function deleteEmbed(interaction, client) {
+    const embedId = parseInt(interaction.options.getString("name"));
+    if (isNaN(embedId)) return interaction.reply({ content: "Please provide select a valid embed from the list.", flags: [MessageFlags.Ephemeral] });
+
+    let savedEmbed = await client.db.embed.findFirst({ where: { id: { equals: embedId } } });
+    if (!savedEmbed) return interaction.reply({ content: "I couldn't find that embed in the database. It may have been deleted.", flags: [MessageFlags.Ephemeral] });
+
+    if (savedEmbed.createdBy !== interaction.user.id && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+        return interaction.reply({ content: `You do not have permission to delete this embed.\n<@${savedEmbed.createdBy}> created this embed. They, or a server admin, can delete it.`, flags: [MessageFlags.Ephemeral] });
+    }
+
+    const embedObj = parseEmbedData(savedEmbed.embedJson);
+    if (!embedObj) return interaction.reply({ content: "There was an error loading the embed data. It may have been corrupted.", flags: [MessageFlags.Ephemeral] });
+
+    const customEmbed = EmbedBuilder.from(embedObj);
+    const deleteConfirmation = new EmbedBuilder()
+        .setColor(client.config.color ?? 'DarkButNotBlack')
+        .setDescription(`Are you sure you want to delete the embed **#${savedEmbed.id} | ${savedEmbed.name}**? This action cannot be undone.`)
+        .setFooter({ text: `A preview of the embed is shown above.` });
+
+    const actionRow = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId(`ceb_delete_confirm$$${savedEmbed.id}`)
+                .setLabel("Confirm Delete")
+                .setStyle(ButtonStyle.Danger),
+            new ButtonBuilder()
+                .setCustomId("ceb_cancel")
+                .setLabel("Cancel")
+                .setStyle(ButtonStyle.Secondary)
+        );
+
+    return interaction.reply({ embeds: [customEmbed, deleteConfirmation], components: [actionRow] });
 };

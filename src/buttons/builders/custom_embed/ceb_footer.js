@@ -2,6 +2,7 @@ const { ButtonInteraction, ModalBuilder, ActionRowBuilder, TextInputBuilder, Tex
 
 module.exports = {
     id: "ceb_footer",
+    invokerOnly: true,
 
     /**
     * 

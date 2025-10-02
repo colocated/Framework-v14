@@ -4,6 +4,7 @@ const { ButtonInteraction, EmbedBuilder, MessageFlags, ActionRowBuilder, Channel
 
 module.exports = {
     id: "ceb_send",
+    invokerOnly: true,
 
     /**
     * 

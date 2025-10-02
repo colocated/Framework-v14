@@ -16,31 +16,35 @@ async function executeButton(interaction, client) {
     /** Check if the interaction is actually a button */
     if (!interaction.isButton()) return;
 
+    /** Split the extra args off */
+    const [customId, ...extraArgs] = interaction.customId.split("$$");
+    interaction.customId = customId;
+
     /** Check if the button exists */
-    const button = client.buttons.get(interaction.customId);
+    const button = client.buttons.get(customId);
     if (!button) {
-        Logger.error(`Button ${interaction.customId} does not exist.`);
+        Logger.error(`Button ${customId} does not exist.`);
         return interaction.reply({ content: `This button is not linked to a response.`, flags: [MessageFlags.Ephemeral] });
     };
 
     /** Check if the button needs to be ignored */
-    if (client.config.ignoredInteractions.buttons.includes(interaction.customId)) return;
+    if (client.config.ignoredInteractions.buttons.includes(customId)) return;
 
     /** Check if the user is on a cooldown */
     if (button?.cooldown) {
         // Check if the user is on cooldown
-        const cooldown = await getCooldown(client, "button", interaction.customId, interaction.user.id);
-        if (cooldown) return interaction.reply({ embeds: [generateCooldownEmbed(client, getCooldown(client, "button", interaction.customId, interaction.user.id))], flags: [MessageFlags.Ephemeral] });
+        const cooldown = await getCooldown(client, "button", customId, interaction.user.id);
+        if (cooldown) return interaction.reply({ embeds: [generateCooldownEmbed(client, getCooldown(client, "button", customId, interaction.user.id))], flags: [MessageFlags.Ephemeral] });
 
         // Set the cooldown
         let btnCooldown;
         try {
             btnCooldown = timestring(button.cooldown);
         } catch (e) {
-            Logger.error(`The cooldown for button ${interaction.customId} is not a valid timestring.`);
+            Logger.error(`The cooldown for button ${customId} is not a valid timestring.`);
         };
 
-        setCooldown(client, "button", interaction.customId, interaction.user.id, timestring(btnCooldown));
+        setCooldown(client, "button", customId, interaction.user.id, timestring(btnCooldown));
     };
 
     /** Setup permission checking */
@@ -111,8 +115,8 @@ async function executeButton(interaction, client) {
     };
 
     /** Log & Execute the button */
-    Logger.log(`${interaction.channel.isDMBased() ? `DMs` : `${interaction.guild.name}`} | ${interaction.user.tag} | 🔘 ${interaction.customId}`);
-    return button.execute(interaction, client);
+    Logger.log(`${interaction.channel.isDMBased() ? `DMs` : `${interaction.guild.name}`} | ${interaction.user.tag} | 🔘 ${customId} ${extraArgs ? `[${extraArgs.join(", ")}]` : ""}`);
+    return button.execute(interaction, client, extraArgs);
 };
 
 module.exports = { executeButton };
