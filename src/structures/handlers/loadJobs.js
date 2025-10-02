@@ -11,7 +11,9 @@ const { loadFiles } = require('../funcs/fileLoader');
  * @param {ExtendedClient} client 
  */
 async function loadJobs(client) {
+    client.jobs.forEach(job => job.task.stop());
     client.jobs.clear();
+
     let jobsArray = [];
 
     const files = await loadFiles("jobs");
