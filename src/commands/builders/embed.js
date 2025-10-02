@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ChatInputCommandInteraction, AutocompleteInteraction, EmbedBuilder, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, ChatInputCommandInteraction, AutocompleteInteraction, EmbedBuilder, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
 
 /** @typedef {import("../../structures/funcs/util/Types").ExtendedClient} ExtendedClient */
 
@@ -196,6 +196,10 @@ async function deleteEmbed(interaction, client) {
 
     let savedEmbed = await client.db.embed.findFirst({ where: { id: { equals: embedId } } });
     if (!savedEmbed) return interaction.reply({ content: "I couldn't find that embed in the database. It may have been deleted.", flags: [MessageFlags.Ephemeral] });
+
+    if (savedEmbed.createdBy !== interaction.user.id && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+        return interaction.reply({ content: `You do not have permission to delete this embed.\n<@${savedEmbed.createdBy}> created this embed. They, or a server admin, can delete it.`, flags: [MessageFlags.Ephemeral] });
+    }
 
     let embedObj; if (typeof savedEmbed.embedJson === "string") embedObj = JSON.parse(savedEmbed.embedJson); else embedObj = savedEmbed.embedJson;
     const customEmbed = EmbedBuilder.from(embedObj);
