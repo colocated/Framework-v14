@@ -11,7 +11,15 @@ const { loadFiles } = require('../funcs/fileLoader');
  * @param {ExtendedClient} client 
  */
 async function loadJobs(client) {
+    client.jobs.forEach(job => {
+        try {
+            job.task?.stop();
+        } catch (error) {
+            Logger.error(`[Jobs] Failed to stop ${job.id}: ${error.message}`);
+        }
+    });
     client.jobs.clear();
+
     let jobsArray = [];
 
     const files = await loadFiles("jobs");
