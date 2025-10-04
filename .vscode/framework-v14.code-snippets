@@ -138,4 +138,43 @@
             ""
         ]
     },
+
+    "Framework v14 Cronjob": {
+        "prefix": [
+            "!job",
+            "!cronjob",
+            "!cron",
+            "!frameworkjob",
+            "!frameworkcronjob",
+            "!frameworkcron"
+        ],
+        "description": "Framework v14 Cronjob Boilerplate",
+        "body": [
+            "/** @typedef {import(\"../src/structures/funcs/util/Types\").ExtendedClient} ExtendedClient */",
+            "",
+            "module.exports = {",
+            "    // Job Meta",
+            "    id: \"${TM_FILENAME_BASE}\",",
+            "    name: \"\",",
+            "    description: \"\",",
+            "",
+            "    // Job Options",
+            "    schedule: \"\", // https://crontab.guru/",
+            "    noOverlap: false,",
+            "    maxExecutions: 0,",
+            "    maxRandomDelay: 0,",
+            "    runOnStartup: false,",
+            "    dangerous: false,",
+            "",
+            "    /**",
+            "     * Execute the job",
+            "     * @param {ExtendedClient} client ",
+            "     */",
+            "    execute: async (client) => {",
+            "        $0",
+            "    }",
+            "};",
+            ""
+        ]
+    },
 }
