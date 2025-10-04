@@ -1,8 +1,11 @@
 {
     "Discord.js App": {
-        "prefix": ["!app", "!contextmenu", "!djsapp"],
+        "prefix": [
+            "!app",
+            "!contextmenu",
+            "!djsapp"
+        ],
         "description": "Discord.js Context Menu Command Boilerplate",
-
         "body": [
             "const { ContextMenuCommandBuilder, ApplicationCommandType, ContextMenuCommandInteraction, EmbedBuilder, MessageFlags } = require('discord.js');",
             "",
@@ -25,11 +28,13 @@
             ""
         ]
     },
-
     "Discord.js Button": {
-        "prefix": ["!btn", "!button", "!djsbtn"],
+        "prefix": [
+            "!btn",
+            "!button",
+            "!djsbtn"
+        ],
         "description": "Discord.js Button Boilerplate",
-
         "body": [
             "const { ButtonInteraction, EmbedBuilder, MessageFlags } = require('discord.js');",
             "",
@@ -50,11 +55,13 @@
             ""
         ]
     },
-
     "Discord.js Command": {
-        "prefix": ["!cmd", "!command", "!djscmd"],
+        "prefix": [
+            "!cmd",
+            "!command",
+            "!djscmd"
+        ],
         "description": "Discord.js Slash Command Boilerplate",
-
         "body": [
             "const { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, MessageFlags } = require('discord.js');",
             "",
@@ -64,11 +71,11 @@
             "    data: new SlashCommandBuilder()",
             "       .setName(\"${TM_FILENAME_BASE}\")",
             "       .setDescription(\"\"),",
-            "",    
+            "",
             "    /**",
             "    * ",
-            "    * @param {ChatInputCommandInteraction} interaction", 
-            "    * @param {ExtendedClient} client", 
+            "    * @param {ChatInputCommandInteraction} interaction",
+            "    * @param {ExtendedClient} client",
             "    */",
             "    async execute(interaction, client) {",
             "        $0",
@@ -77,9 +84,11 @@
             ""
         ]
     },
-
     "Discord.js Modal": {
-        "prefix": ["!modal", "!djsmodal"],
+        "prefix": [
+            "!modal",
+            "!djsmodal"
+        ],
         "description": "Discord.js Modal Boilerplate",
         "body": [
             "const { ModalSubmitInteraction, EmbedBuilder, MessageFlags } = require('discord.js');",
@@ -101,9 +110,13 @@
             ""
         ]
     },
-
     "Discord.js Select Menu": {
-        "prefix": ["!menu", "!selectmenu", "!djsmenu", "!djsselectmenu"],
+        "prefix": [
+            "!menu",
+            "!selectmenu",
+            "!djsmenu",
+            "!djsselectmenu"
+        ],
         "description": "Discord.js Select Menu Boilerplate",
         "body": [
             "const { StringSelectMenuInteraction, EmbedBuilder, MessageFlags } = require('discord.js');",
