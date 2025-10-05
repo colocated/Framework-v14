@@ -20,6 +20,8 @@ async function loadJobs(client) {
     const files = await loadFiles("src/jobs");
     if (!files.length) return Logger.warn(`[Jobs] Not preparing. No job files found!`);
 
+    // We put this message here so runOnStartup Jobs outputs don't confuse the user
+    Logger.info(`[Jobs] Scheduling (and running) ${files.length} job${files.length === 1 ? '' : 's'}...`);
     files.forEach((file) => {
         const job = require(file);
         if (!job?.id || !job?.schedule || !job?.execute) {
