@@ -48,11 +48,11 @@ module.exports = {
         } catch (error) {
             Logger.error(`Failed to execute-on-demand job ${jobId}: ${error.message}`);
             const userErrorMessage = `An error occurred while trying to execute job \`${jobId}\`\n-# Please check the logs for more details.`;
-            return respond(userErrorMessage);
+            return respond(interaction, userErrorMessage);
         }
 
         const successMessage = `Job \`${jobId}\` has been successfully queued for immediate execution.`;
-        return respond(successMessage);
+        return respond(interaction, successMessage);
     }
 };
 
@@ -61,7 +61,7 @@ module.exports = {
  * @param {String} message 
  * @returns {Promise<void>}
  */
-const respond = (message) => {
+const respond = (interaction, message) => {
     const options = { content: message, embeds: [], components: [], flags: [MessageFlags.Ephemeral] };
     if (interaction.customId.startsWith('job_force_run')) return interaction.update(options);
     return interaction.reply(options);
