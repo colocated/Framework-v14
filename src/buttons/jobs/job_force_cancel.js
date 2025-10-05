@@ -13,6 +13,6 @@ module.exports = {
             .setDescription('You got too scared and cancelled the operation.\nYippee-ki-yay, quitter!')
             .setColor('Red');
 
-        return interaction.update({ embeds: [cancelEmbed], components: [], flags: [MessageFlags.Ephemeral] });
+        return interaction.update({ embeds: [cancelEmbed], components: [] });
     }
 };
