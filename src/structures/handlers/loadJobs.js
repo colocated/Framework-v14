@@ -34,6 +34,11 @@ async function loadJobs(client) {
             return Logger.warn(`[Jobs] Duplicate job ID found: ${job.id} in ${file} - skipping duplicate instances.`);
         }
 
+        if (job.id.length > 75) {
+            // Limit Job ID to 75 characters because of Discord Custom ID limits (buttons to disable/run job on demand)
+            return Logger.warn(`[Jobs] Job ID too long (max 75 characters): ${job.id} in ${file} - skipping this job.`);
+        }
+
         try {
             const task = cron.schedule(job.schedule, () => job.execute(client), {
                 name: job?.name ?? job.id,
