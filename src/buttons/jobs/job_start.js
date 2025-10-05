@@ -25,6 +25,7 @@ module.exports = {
             job.task.start();
         } catch (error) {
             Logger.error(`Failed to start job ${jobId}: ${error.message}`);
+            return interaction.reply({ content: `Starting job \`${jobId}\` failed: ${error.message}`, flags: [MessageFlags.Ephemeral] });
         }
 
         const { jobEmbed, row } = generateComponents(job);

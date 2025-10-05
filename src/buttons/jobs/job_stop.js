@@ -25,6 +25,7 @@ module.exports = {
             job.task.stop();
         } catch (error) {
             Logger.error(`Failed to stop job ${jobId}: ${error.message}`);
+            return interaction.reply({ content: `Stopping job \`${jobId}\` failed: ${error.message}`, flags: [MessageFlags.Ephemeral] });
         }
 
         const { jobEmbed, row } = generateComponents(job);

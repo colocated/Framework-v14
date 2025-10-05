@@ -47,6 +47,8 @@ module.exports = {
             job.task.execute();
         } catch (error) {
             Logger.error(`Failed to execute-on-demand job ${jobId}: ${error.message}`);
+            const userErrorMessage = `An error occurred while trying to execute job \`${jobId}\`\n-# Please check the logs for more details.`;
+            return respond(userErrorMessage);
         }
 
         const successMessage = `Job \`${jobId}\` has been successfully queued for immediate execution.`;

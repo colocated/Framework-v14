@@ -25,6 +25,7 @@ module.exports = {
             job.task.destroy();
         } catch (error) {
             Logger.error(`Failed to destroy job ${jobId}: ${error.message}`);
+            return interaction.reply({ content: `An error occurred while trying to delete job \`${jobId}\`.\n-# Please check the logs for more details.`, flags: [MessageFlags.Ephemeral] });
         }
 
         const { jobEmbed, row } = generateComponents(job);
