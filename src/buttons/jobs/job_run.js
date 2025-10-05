@@ -50,8 +50,17 @@ module.exports = {
         }
 
         const successMessage = `Job \`${jobId}\` has been successfully queued for immediate execution.`;
-        // hacky workaround because interaction.message.interaction.commandName is deprecated
-        if (interaction.customId.startsWith('job_force_run')) return interaction.update({ content: successMessage, embeds: [], components: [] , flags: [MessageFlags.Ephemeral] });
-        return interaction.reply({ content: successMessage, flags: [MessageFlags.Ephemeral] });
+        return respond(successMessage);
     }
+};
+
+/**
+ * Respond to the interaction based on its invocation condition
+ * @param {String} message 
+ * @returns {Promise<void>}
+ */
+const respond = (message) => {
+    const options = { content: message, embeds: [], components: [], flags: [MessageFlags.Ephemeral] };
+    if (interaction.customId.startsWith('job_force_run')) return interaction.update(options);
+    return interaction.reply(options);
 };
