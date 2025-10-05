@@ -1,5 +1,6 @@
 const { ButtonInteraction, MessageFlags } = require('discord.js');
 const { generateComponents } = require('../../commands/developer/jobs');
+const Logger = require('../../../src/structures/funcs/util/Logger');
 
 /** @typedef {import("../../../structures/funcs/util/Types").ExtendedClient} ExtendedClient */
 
@@ -23,7 +24,7 @@ module.exports = {
         try {
             job.task.stop();
         } catch (error) {
-            client.logger.error(`Failed to stop job ${jobId}: ${error.message}`);
+            Logger.error(`Failed to stop job ${jobId}: ${error.message}`);
         }
 
         const { jobEmbed, row } = generateComponents(job);

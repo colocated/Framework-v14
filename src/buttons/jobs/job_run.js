@@ -1,4 +1,5 @@
 const { ButtonInteraction, EmbedBuilder, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle, InteractionType } = require('discord.js');
+const Logger = require('../../../src/structures/funcs/util/Logger');
 
 /** @typedef {import("../../../structures/funcs/util/Types").ExtendedClient} ExtendedClient */
 
@@ -45,7 +46,7 @@ module.exports = {
         try {
             job.task.execute();
         } catch (error) {
-            client.logger.error(`Failed to execute-on-demand job ${jobId}: ${error.message}`);
+            Logger.error(`Failed to execute-on-demand job ${jobId}: ${error.message}`);
         }
 
         const successMessage = `Job \`${jobId}\` has been successfully queued for immediate execution.`;

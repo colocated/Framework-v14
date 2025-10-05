@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, MessageFlags, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const cronstrue = require('cronstrue');
 
+const Logger = require('../../../src/structures/funcs/util/Logger');
 const StatusEmbedBuilder = require('../../structures/funcs/tools/createStatusEmbed');
 const statusEmbed = new StatusEmbedBuilder('Jobs');
 
@@ -219,7 +220,7 @@ async function run(interaction, client) {
     try {
         job.task.execute();
     } catch (error) {
-        client.logger.error(`Failed to execute-on-demand job ${jobId}: ${error.message}`);
+        Logger.error(`Failed to execute-on-demand job ${jobId}: ${error.message}`);
     }
 
     return interaction.reply({ content: `Job \`${jobId}\` has been successfully queued for immediate execution.`, flags: [MessageFlags.Ephemeral] });
