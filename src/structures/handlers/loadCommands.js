@@ -52,8 +52,9 @@ async function loadCommands(client) {
     if (!process.env.DEVELOPER_GUILD_ID) return Logger.warn(`[Commands] Developer commands not loaded - Developer guild ID not provided.`);
     client.guilds.cache.find(g => g.id === process.env.DEVELOPER_GUILD_ID)?.commands.set(developerArray).catch(() => { return; });
 
+    const commandCategoryAmount = [...new Set(client.commands.map(cmd => cmd.category))].length; // Set only has unique entries - so this gets the unique categories amount
     if (!commandsArray.length && !developerArray.length) return Logger.error(`[Commands] None loaded - Folder empty.`)
-    else return Logger.success(`Successfully loaded commands:\n                       ╒═ ${cyan(`${commandsArray.length} slash commands`)} (${cyan(`${developerArray.length} developer slash commands`)})\n                       ╞═ ${cyan(`${appsArray.length} context menus`)} (${cyan(`${devAppsArray.length} developer context menus`)})\n                       ╘═ Across ${cyan(`${commandCats.length} categories`)}.`);
+    else return Logger.success(`Successfully loaded commands:\n                       ╒═ ${cyan(`${commandsArray.length} slash commands`)} (${cyan(`${developerArray.length} developer slash commands`)})\n                       ╞═ ${cyan(`${appsArray.length} context menus`)} (${cyan(`${devAppsArray.length} developer context menus`)})\n                       ╘═ Across ${cyan(`${commandCategoryAmount} categories`)}.`);
 }
 
 // Helper to get category from command file path
