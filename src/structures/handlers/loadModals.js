@@ -12,8 +12,6 @@ const Logger = require('../funcs/util/Logger');
  */
 async function loadModals(client) {
     client.modals.clear();
-    
-    let modalsArray = [];
 
     const files = await loadFiles("src/modals");
     files.forEach((file) => {
@@ -21,12 +19,10 @@ async function loadModals(client) {
         if (!modal?.id) return Logger.warn(`[Modals] ${file} does not export a modal (id).`);
 
         client.modals.set(modal.id, modal);
-
-        modalsArray.push(modal);
     });
 
-    if (!modalsArray.length) return Logger.warn(`[Modals] None loaded - Folder empty.`);
-    else return Logger.success(`Loaded ${cyan(`${modalsArray.length} modals`)}.`);
+    if (!client.modals.size) return Logger.warn(`[Modals] None loaded - Folder empty.`);
+    else return Logger.success(`Loaded ${cyan(`${client.modals.size} modals`)}.`);
 }
 
 module.exports = { loadModals };

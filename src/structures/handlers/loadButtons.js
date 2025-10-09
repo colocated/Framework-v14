@@ -12,9 +12,7 @@ const { loadFiles } = require('../funcs/fileLoader');
  */
 async function loadButtons(client) {
     client.buttons.clear();
-    
-    let buttonsArray = [];
-    let aliasArray = [];
+    let aliasCount = 0;
 
     const files = await loadFiles("src/buttons");
     files.forEach((file) => {
@@ -25,17 +23,15 @@ async function loadButtons(client) {
         if (button.aliases) {
             button.aliases.forEach(alias => {
                 client.buttons.set(alias, button);
-                aliasArray.push(alias + `-` + button?.id);
+                aliasCount++;
             });
         };
 
         client.buttons.set(button.id, button);
-
-        buttonsArray.push(button);
     });
 
-    if (!buttonsArray.length) return Logger.warn(`[Buttons] None loaded - Folder empty.`);
-    else return Logger.success(`Loaded ${cyan(`${buttonsArray.length} buttons`)} and ${cyan(`${aliasArray.length} aliases`)}.`);
+    if (!client.buttons.size) return Logger.warn(`[Buttons] None loaded - Folder empty.`);
+    else return Logger.success(`Loaded ${cyan(`${client.buttons.size - aliasCount} buttons`)} and ${cyan(`${aliasCount} aliases`)}.`);
 }
 
 module.exports = { loadButtons };
