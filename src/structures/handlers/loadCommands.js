@@ -32,6 +32,13 @@ async function loadCommands(client) {
         else commandsArray.push(command.data.toJSON());
     });
 
+    client.commandCategories = {};
+    client.commands.forEach(cmd => {
+        const category = cmd.category || "Uncategorised";
+        if (!client.commandCategories[category]) client.commandCategories[category] = 0;
+        client.commandCategories[category]++;
+    });
+
     if (!files.length) Logger.warn(`[Commands] None loaded - Folder empty.`)
 
     const contextMenus = await loadFiles("src/apps");
