@@ -191,7 +191,7 @@ function processQueryMessage(query, client, pageIndex = 0, withBackButton = fals
         if (!command) return { content: "❌ Command not found.", embeds: [], components: [], flags: [MessageFlags.Ephemeral] };
         const permissions = new PermissionsBitField(BigInt(command?.data?.default_member_permissions || 0)).toArray().map(p => `\`${p}\``).join(", ") || null;
 
-        embed.setTitle(`${getCategoryEmoji(command.category, client)} /${command.data.name} (${command?.category.charAt(0).toUpperCase() + command?.category?.slice(1) || "Uncategorised"})`.slice(0, 256))
+        embed.setTitle(`${getCategoryEmoji(command.category, client)} /${command.data.name} (${command?.category ? command.category.charAt(0).toUpperCase() + command.category.slice(1) : "Uncategorised"})`.slice(0, 256))
             .setDescription(command.data.description ?? "No description provided.".slice(0, 4096));
 
         if (command?.cooldown) embed.addFields({ name: "Cooldown".slice(0, 256), value: `${humanizeDuration(timestring(command.cooldown, 'ms'))}`.slice(0, 1024) || "None", inline: true });
