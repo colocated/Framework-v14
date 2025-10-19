@@ -1,4 +1,5 @@
 const { ModalSubmitInteraction, EmbedBuilder, MessageFlags } = require("discord.js");
+const { gray } = require('chalk');
 const timestring = require('timestring');
 
 const Logger = require('../util/Logger');
@@ -87,24 +88,24 @@ async function executeModal(interaction, client) {
                 break;
 
             case "permission_error_guild_role":
-                errorEmbed.setDescription(`❌ You do not have the required roles to execute this modal`)
+                errorEmbed.setDescription(`❌ You do not have the required roles to use this modal!`)
                     .addFields({ name: `Required Roles`, value: `<@&${modal.reqRoles.join(">, <@&")}>` });
                 break;
 
             case "permission_error_dm":
                 errorEmbed.setDescription(`❌ A server role is required to interact with this modal!\nPlease try again in a server.`);
-
                 break;
 
             default:
-                errorEmbed.setDescription(`❌ There was a permission error, but we're not sure what.`)
+                errorEmbed.setDescription(`❌ There was a permission error, but we're not sure what.`);
+                break;
         };
 
         return interaction.reply({ embeds: [errorEmbed], flags: [MessageFlags.Ephemeral] });
     };
 
     /** Execute the modal */
-    Logger.log(`${interaction.channel.isDMBased() ? `DMs` : `${interaction.guild.name}`} | ${interaction.user.tag} | 📋 ${interaction.customId}`)
+    Logger.log(`${interaction.channel.isDMBased() ? `DMs` : `${interaction.guild.name}`} | ${interaction.user.tag} | 📋 ${interaction.customId}`);
     return modal.execute(interaction, client);
 };
 

@@ -165,6 +165,7 @@
             "    maxRandomDelay: 0,",
             "    runOnStartup: false,",
             "    dangerous: false,",
+            "    disableLogs: [], // Disable specific logs: 'task:started', 'task:stopped', 'task:destroyed', 'execution:started', 'execution:finished', 'execution:failed', 'execution:missed', 'execution:overlap', 'execution:maxReached'",
             "",
             "    /**",
             "     * Execute the job",

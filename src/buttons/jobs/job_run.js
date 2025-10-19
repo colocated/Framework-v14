@@ -51,7 +51,7 @@ module.exports = {
             return respond(interaction, userErrorMessage);
         }
 
-        const successMessage = `Job \`${jobId}\` has been successfully queued for immediate execution.`;
+        const successMessage = `Job \`${jobId}\` has been successfully queued for immediate execution.\n-# The Embed Footer above might not update immediately, use \`/jobs view job_id:${jobId}\` to see the latest execution count.`;
         return respond(interaction, successMessage);
     }
 };

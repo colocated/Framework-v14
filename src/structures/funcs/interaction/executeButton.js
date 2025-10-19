@@ -1,4 +1,5 @@
 const { ButtonInteraction, EmbedBuilder, MessageFlags } = require("discord.js");
+const { grey, white } = require('chalk');
 const timestring = require('timestring');
 
 const Logger = require('../util/Logger');
@@ -115,7 +116,7 @@ async function executeButton(interaction, client) {
     };
 
     /** Log & Execute the button */
-    Logger.log(`${interaction.channel.isDMBased() ? `DMs` : `${interaction.guild.name}`} | ${interaction.user.tag} | 🔘 ${customId} ${extraArgs.length ? `[${extraArgs.join(", ")}]` : ""}`);
+    Logger.log(`${interaction.channel.isDMBased() ? `DMs` : `${interaction.guild.name}`} | ${interaction.user.tag} | 🔘 ${customId} ${extraArgs.length ? `${grey("extraArgs=")}[${white(extraArgs.join(", "))}]` : ""}`);
     return button.execute(interaction, client, extraArgs);
 };
 
