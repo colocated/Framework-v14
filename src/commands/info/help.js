@@ -226,7 +226,7 @@ function processQueryMessage(query, client, pageIndex = 0, withBackButton = fals
         if (!client.commandCategories[category]) {
             const notFoundEmbed = new EmbedBuilder()
                 .setTitle(`❌ Category not found`)
-                .setDescription(`Try re-running /help to get an updated list of categories.s`)
+                .setDescription(`Try re-running /help to get an updated list of categories.`)
                 .setColor('Red');
             return { embeds: [notFoundEmbed], flags: [MessageFlags.Ephemeral] };
         }
