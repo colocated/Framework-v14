@@ -211,11 +211,13 @@ function processQueryMessage(query, client, pageIndex = 0, withBackButton = fals
         const options = command.data.options.filter(opt => opt.type != null);
 
         if (subcommands.length) {
-            subcommands.forEach(sub => {
+            const subcommandLines = subcommands.map(sub => {
                 const subOpts = sub.options.filter(opt => opt.type != null);
-                sub.name += ` ${subOpts.map(o => o.required ? `<${o.name}>` : `[${o.name}]`).join(" ")}`;
+                const optionString = subOpts.map(o => o.required ? `<${o.name}>` : `[${o.name}]`).join(" ");
+                const fullName = optionString ? `${sub.name} ${optionString}` : sub.name;
+                return `\`/${command.data.name} ${fullName}\` - ${sub.description || "No description"}`;
             });
-            embed.addFields({ name: "Subcommands", value: subcommands.length ? subcommands.map(sub => `\`/${command.data.name} ${sub.name}\` - ${sub.description || "No description"}`).join("\n").slice(0, 1024) : "None", inline: false });
+            embed.addFields({ name: "Subcommands", value: subcommandLines.length ? subcommandLines.join("\n").slice(0, 1024) : "None", inline: false });
         } else if (options.length) {
             embed.addFields({ name: "Options", value: options.length ? options.map(opt => `\`${opt.name}\` (${ApplicationCommandOptionType[opt.type]}) - ${opt.description || "No description"}`).join("\n").slice(0, 1024) : "None", inline: false });
         };
