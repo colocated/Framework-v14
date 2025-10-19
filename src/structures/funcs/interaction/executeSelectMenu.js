@@ -1,4 +1,5 @@
 const { ModalSubmitInteraction, EmbedBuilder, MessageFlags } = require("discord.js");
+const { gray } = require('chalk');
 const timestring = require('timestring');
 
 const Logger = require('../util/Logger');
@@ -101,7 +102,7 @@ async function executeSelectMenu(interaction, client) {
     };
 
     /** Log & Execute the menu */
-    Logger.log(`${interaction.channel.isDMBased() ? `DMs` : `${interaction.guild.name}`} | ${interaction.user.tag} | 📃 ${interaction.customId}`)
+    Logger.log(`${interaction.channel.isDMBased() ? `DMs` : `${interaction.guild.name}`} | ${interaction.user.tag} | 📃 ${interaction.customId}${interaction.values[0] ? ` ${gray(`value=`)}${interaction.values[0]}` : ''}`);
     return menu.execute(interaction, client);
 }
 

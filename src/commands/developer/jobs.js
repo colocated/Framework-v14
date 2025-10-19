@@ -50,7 +50,7 @@ module.exports = {
         const focusedOption = interaction.options.getFocused(true);
         if (focusedOption.name === 'job_id') {
             const filtered = client.jobs.filter(job => job.id.startsWith(focusedOption.value));
-            await interaction.respond(filtered.map(job => ({ name: `${job.name} ${job?.dangerous ? '[⚠️] ' : ''}[${job.id}]`, value: job.id })).slice(0, 25));
+            await interaction.respond(filtered.map(job => ({ name: `${job.name ? job.name : 'Unnamed Job'} ${job?.dangerous ? '[⚠️] ' : ''}[${job.id}]`, value: job.id })).slice(0, 25));
         }
     },
 
@@ -110,7 +110,8 @@ function generateComponents(job) {
             { name: 'Task overlapping', value: job?.noOverlap ? 'Cannot overlap' : 'Can overlap', inline: true },
             { name: 'Maximum Executions', value: job?.maxExecutions ? job.maxExecutions.toLocaleString() : 'Unlimited', inline: true },
             { name: 'Max Random Delay', value: job?.maxRandomDelay ? `${job.maxRandomDelay / 1000} seconds` : 'None', inline: true },
-        );
+        )
+        .setFooter({ text: `Executions since boot: ${job?.task?.runner?.runCount ?? 'Unknown'}` });
     if (job?.description) jobEmbed.addFields({ name: 'Description', value: job.description });
 
     const modifyJobStatusButton = new ButtonBuilder()
