@@ -102,7 +102,7 @@ function mainMenuMessage(interaction, client, pageIndex = 0) {
 
     const embed = new EmbedBuilder()
         .setTitle(`✨ ${interaction?.guild?.members.me.displayName ?? client.user.displayName} - Help Menu`.slice(0, 256))
-        .setDescription(`Select a category below to view available commands and usage.\nYou may also use \`/help [category name]\` or \`/help [command name]\` directly.\n**Need extra support?** Open a ticket!`)
+        .setDescription(`Select a category below to view available commands and usage.\nYou may also use \`/help [category name]\` or \`/help [command name]\` directly.`)
         .addFields(...fields)
         .setColor(client.config.color)
 
