@@ -231,7 +231,7 @@ function processQueryMessage(query, client, pageIndex = 0, withBackButton = fals
             return { embeds: [notFoundEmbed], flags: [MessageFlags.Ephemeral] };
         }
 
-        const commandsInCategory = client.commands.filter(cmd => (cmd?.category).toLowerCase() === category.toLowerCase());
+        const commandsInCategory = client.commands.filter(cmd => String(cmd?.category || "").toLowerCase() === category.toLowerCase());
         const commandLines = commandsInCategory.size ? commandsInCategory.map(cmd => `\`/${cmd.data.name}\` - ${cmd.data.description || "No description"}`) : ["None"];
 
         const commandPages = [];
