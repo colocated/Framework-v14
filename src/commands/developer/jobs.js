@@ -111,7 +111,7 @@ function generateComponents(job) {
             { name: 'Maximum Executions', value: job?.maxExecutions ? job.maxExecutions.toLocaleString() : 'Unlimited', inline: true },
             { name: 'Max Random Delay', value: job?.maxRandomDelay ? `${job.maxRandomDelay / 1000} seconds` : 'None', inline: true },
         )
-        .setFooter({ text: `Executions since boot: ${job.task.runner.runCount ?? `Unknown`}` });
+        .setFooter({ text: `Executions since boot: ${job?.task?.runner?.runCount ?? 'Unknown'}` });
     if (job?.description) jobEmbed.addFields({ name: 'Description', value: job.description });
 
     const modifyJobStatusButton = new ButtonBuilder()
