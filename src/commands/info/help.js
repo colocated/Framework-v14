@@ -52,8 +52,11 @@ module.exports = {
     * @param {ExtendedClient} client
     */
     async execute(interaction, client) {
-        const query = interaction.options.getString("query");
-        if (query) return interaction.reply(processQueryMessage(query, client));
+        const raw = interaction.options.getString("query");
+        if (raw) {
+            const q = resolveHelpQueryToken(raw, client);
+            return interaction.reply(processQueryMessage(q, client));
+        }
         else return interaction.reply(mainMenuMessage(interaction, client));
     },
 
@@ -146,6 +149,28 @@ function mainMenuMessage(interaction, client, pageIndex = 0) {
 function getCategoryEmoji(category, client) {
     category = category.toLowerCase();
     return client.config.helpCategoryEmojis[category] || `❔`;
+}
+
+/**
+ * 
+ * @param {String} input 
+ * @param {ExtendedClient} client 
+ * @returns 
+ */
+function resolveHelpQueryToken(input, client) {
+    let q = String(input || "").trim().replace(/^\//, "");
+    if (q.startsWith("cmd_") || q.startsWith("cat_")) return q;
+
+    // Exact command name
+    if (client.commands.has(q)) return `cmd_${q}`;
+
+    // Case-insensitive category match
+    const categories = Object.keys(client.commandCategories || {});
+    const exact = categories.find(c => c.toLowerCase() === q.toLowerCase());
+    if (exact) return `cat_${exact}`;
+
+    // No match → keep original to trigger a clean error message upstream
+    return q;
 }
 
 /**
