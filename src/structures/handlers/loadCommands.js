@@ -34,7 +34,8 @@ async function loadCommands(client) {
 
     client.commandCategories = {};
     client.commands.forEach(cmd => {
-        const category = cmd.category || "Uncategorised";
+        const categoryRaw = cmd.category;
+        const category = (!categoryRaw || categoryRaw === "." || categoryRaw.length < 1) ? "uncategorised" : categoryRaw;
         if (!client.commandCategories[category]) client.commandCategories[category] = 0;
         client.commandCategories[category]++;
     });
@@ -66,12 +67,15 @@ async function loadCommands(client) {
 
 // Helper to get category from command file path
 function getCategoryFromCommandFile(filePath, commandsFolder, stripSubcategories = false) {
-    const relativePath = path.relative(process.cwd(), filePath);
-    const normalizedPath = relativePath.replace(/\\/g, "/");
-    const withoutCommandsFolder = normalizedPath.replace(`${commandsFolder}/`, "");
+    const relativePath = path.relative(process.cwd(), filePath).replace(/\\/g, "/");
+    const commandsPrefix = `${commandsFolder.replace(/\\/g, "/")}/`;
+    const withoutCommandsFolder = relativePath.startsWith(commandsPrefix)
+        ? relativePath.slice(commandsPrefix.length)
+        : relativePath;
     let category = path.dirname(withoutCommandsFolder).replace(/\\/g, "/");
+    if (category === ".") category = "uncategorised";
 
-    if (stripSubcategories) category = category.split('/')[0];
+    if (stripSubcategories && category) category = category.split('/')[0];
 
     return category;
 }
