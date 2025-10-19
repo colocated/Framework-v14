@@ -96,7 +96,7 @@ function mainMenuMessage(interaction, client, pageIndex = 0) {
         selectMenuOptionPages.push(commandCategoryOptions.slice(i, i + 25));
     }
 
-    const safePageIndex = pageIndex !== null && pageIndex < categoryPages.length ? pageIndex : categoryPages.length - 1;
+    const safePageIndex = Number.isFinite(pageIndex) ? Math.min(Math.max(pageIndex, 0), Math.max(categoryPages.length - 1, 0)) : Math.max(categoryPages.length - 1, 0);
     const fields = categoryPages[safePageIndex] || [];
     const selectMenuOptions = selectMenuOptionPages[safePageIndex] || [];
 
@@ -239,7 +239,7 @@ function processQueryMessage(query, client, pageIndex = 0, withBackButton = fals
             commandPages.push(commandLines.slice(i, i + 30));
         }
 
-        const safePageIndex = pageIndex !== null && pageIndex < commandPages.length ? pageIndex : commandPages.length - 1;
+        const safePageIndex = Number.isFinite(pageIndex) ? Math.min(Math.max(pageIndex, 0), Math.max(commandPages.length - 1, 0)) : Math.max(commandPages.length - 1, 0);
 
         const embed = new EmbedBuilder()
             .setTitle(`${getCategoryEmoji(category, client)} Category: ${category.split('/').map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' → ')}`.slice(0, 256))
