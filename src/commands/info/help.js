@@ -26,13 +26,13 @@ module.exports = {
         const focusedValue = interaction.options.getFocused();
 
         const commandChoices = client.commands
-            .filter(cmd => !cmd.developer || interaction.guild.id === process.env.DEVELOPER_GUILD_ID) // filter out developer commands unless in dev guild
+            .filter(cmd => !cmd.developer || interaction.guild?.id === process.env.DEVELOPER_GUILD_ID) // filter out developer commands unless in dev guild
             .map((cmd) => ({
                 name: `${getCategoryEmoji(cmd?.category, client)} /${cmd?.data?.name}`,
                 value: `cmd_${cmd?.data?.name}`
             }));
         const categoryChoices = Object.keys(client.commandCategories)
-            .filter(cat => cat.toLowerCase() !== 'developer' || interaction.guild.id === process.env.DEVELOPER_GUILD_ID) // filter the 'developer' folder of commands unless in dev guild
+            .filter(cat => cat.toLowerCase() !== 'developer' || interaction.guild?.id === process.env.DEVELOPER_GUILD_ID) // filter the 'developer' folder of commands unless in dev guild
             .map(cat => ({
                 name: `${getCategoryEmoji(cat, client)} ${cat.split('/').map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' → ')} (Category)`,
                 value: `cat_${cat}`
