@@ -11,7 +11,8 @@ module.exports = {
     * @param {ButtonInteraction} interaction 
     * @param {ExtendedClient} client 
     */
-    async execute(interaction, client) {
-        return interaction.update(mainMenuMessage(interaction, client));
+    async execute(interaction, client, extraArgs) {
+        const pageIndex = parseInt(extraArgs[0]) || 0;
+        return interaction.update(mainMenuMessage(interaction, client, pageIndex));
     }
 };
