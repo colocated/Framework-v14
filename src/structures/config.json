@@ -2,6 +2,7 @@
     "color": "#ffffff",
     "enableDebugLogs": false,
 
+    "stripCommandSubcategories": true,
     "helpCategoryEmojis": {
         "builders": "🧱",
         "developer": "🔧",

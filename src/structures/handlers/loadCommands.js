@@ -25,7 +25,7 @@ async function loadCommands(client) {
         const command = require(file);
         if (!command.data) return Logger.warn(`[Commands] ${file} does not export a command (data).`);
 
-        command.category = getCategoryFromCommandFile(file, commandsFolder);
+        command.category = getCategoryFromCommandFile(file, commandsFolder, client.config.stripCommandSubcategories);
         client.commands.set(command.data?.name, command);
 
         if (command.developer) developerArray.push(command.data.toJSON());
@@ -65,11 +65,13 @@ async function loadCommands(client) {
 }
 
 // Helper to get category from command file path
-function getCategoryFromCommandFile(filePath, commandsFolder) {
+function getCategoryFromCommandFile(filePath, commandsFolder, stripSubcategories = false) {
     const relativePath = path.relative(process.cwd(), filePath);
     const normalizedPath = relativePath.replace(/\\/g, "/");
     const withoutCommandsFolder = normalizedPath.replace(`${commandsFolder}/`, "");
-    const category = path.dirname(withoutCommandsFolder).replace(/\\/g, "/");
+    let category = path.dirname(withoutCommandsFolder).replace(/\\/g, "/");
+
+    if (stripSubcategories) category = category.split('/')[0];
 
     return category;
 }
