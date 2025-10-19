@@ -1,177 +1,309 @@
-const { EmbedBuilder, ChatInputCommandInteraction, SlashCommandBuilder, AutocompleteInteraction, MessageFlags } = require("discord.js");
-const { readdirSync } = require('fs-extra');
-
-const createHelpMenu = require(`../../structures/funcs/tools/createHelpMenu`);
+const { SlashCommandBuilder, AutocompleteInteraction, ChatInputCommandInteraction, EmbedBuilder, MessageFlags, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, PermissionsBitField, SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder, ApplicationCommandOptionType, Collection, ButtonBuilder, ButtonStyle
+} = require('discord.js');
+const timestring = require('timestring');
+const humanizeDuration = require('humanize-duration');
 
 /** @typedef {import("../../structures/funcs/util/Types").ExtendedClient} ExtendedClient */
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName(`help`)
-        .setDescription(`Shows info on commands, or shows help on a specific command`)
-        .addStringOption(option => option.setName(`command`).setDescription(`The command to get help on`).setRequired(false).setAutocomplete(true)),
+        .setName("help")
+        .setDescription("Provides information about commands and categories.")
 
-    usage: `/help [command|category]`,
+        .addStringOption(option =>
+            option.setName("query")
+                .setDescription("The command or category to look up.")
+                .setAutocomplete(true)
+                .setRequired(false)
+        ),
 
     /**
      * 
      * @param {AutocompleteInteraction} interaction 
-     * @param {ExtendedClient} client
-     * @returns 
+     * @param {ExtendedClient} client 
      */
     async autocomplete(interaction, client) {
-        // Max is 25
-        let userValue = interaction.options.getFocused();
-        const choices = client.commandCategories.map((category) => ({ name: category.charAt(0).toUpperCase() + category.slice(1).toLowerCase(), value: category.toLowerCase() }));
+        const focusedValue = interaction.options.getFocused();
 
-        const filter = choices.filter((choice) => choice.name.toLowerCase().startsWith(userValue.toLowerCase()));
-        return interaction.respond(filter.map((choice) => ({ name: choice.name, value: choice.value })));
+        const commandChoices = client.commands
+            .filter(cmd => !cmd.developer || interaction.guild?.id === process.env.DEVELOPER_GUILD_ID) // filter out developer commands unless in dev guild
+            .map((cmd) => ({
+                name: `${getCategoryEmoji(cmd?.category, client)} /${cmd?.data?.name}`,
+                value: `cmd_${cmd?.data?.name}`
+            }));
+        const categoryChoices = Object.keys(client.commandCategories)
+            .filter(cat => cat.toLowerCase() !== 'developer' || interaction.guild?.id === process.env.DEVELOPER_GUILD_ID) // filter the 'developer' folder of commands unless in dev guild
+            .map(cat => ({
+                name: `${getCategoryEmoji(cat, client)} ${cat.split('/').map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' → ')} (Category)`,
+                value: `cat_${cat}`
+            }));
+
+        const choices = [...commandChoices, ...categoryChoices];
+        const filtered = choices.filter(choice => choice.name.toLowerCase().includes(focusedValue.toLowerCase())).slice(0, 25);
+
+        await interaction.respond(
+            filtered.map(choice => ({ name: choice.name, value: choice.value })),
+        );
     },
 
     /**
-     * 
-     * @param {ChatInputCommandInteraction} interaction 
-     * @param {ExtendedClient} client 
-     * @returns 
-     */
+    * 
+    * @param {ChatInputCommandInteraction} interaction
+    * @param {ExtendedClient} client
+    */
     async execute(interaction, client) {
-        const helpcmd = interaction.options.getString("command");
+        const raw = interaction.options.getString("query");
+        if (raw) {
+            const q = resolveHelpQueryToken(raw, client);
+            return interaction.reply(processQueryMessage(q, client));
+        }
+        else return interaction.reply(mainMenuMessage(interaction, client));
+    },
 
-        let categories = [];
-        let cots = [];
+    processQueryMessage, mainMenuMessage
+};
 
-        const emo = {
-            builders: `🛠️`,
-            info: `ℹ️`,
-            developer: `💻`,
-            systems: `📡`,
+/**
+ *
+ * @param {ChatInputCommandInteraction} interaction
+ * @param {ExtendedClient} client
+ * @param {Number} pageIndex
+ * @returns
+ */
+function mainMenuMessage(interaction, client, pageIndex = 0) {
+    const commandCategories = client.commandCategories;
+
+    const commandCategoryFields = Object.entries(commandCategories).map(([name, count]) => ({
+        name: `${getCategoryEmoji(name, client)} ${name.split('/').map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' → ')}`.slice(0, 256),
+        value: `${count} command${count === 1 ? "" : "s"}`.slice(0, 1024),
+        inline: true
+    }));
+
+    const commandCategoryOptions = Object.keys(commandCategories).map(cat => new StringSelectMenuOptionBuilder()
+        .setLabel(cat.split('/').map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' → ').slice(0, 100))
+        .setValue(`cat_${cat}`.slice(0, 100))
+        .setDescription(`${commandCategories[cat]} command${commandCategories[cat] === 1 ? "" : "s"}`.slice(0, 100))
+        .setEmoji(getCategoryEmoji(cat, client))
+    );
+
+    const categoryPages = [];
+    for (let i = 0; i < commandCategoryFields.length; i += 25) {
+        categoryPages.push(commandCategoryFields.slice(i, i + 25));
+    }
+
+    const selectMenuOptionPages = [];
+    for (let i = 0; i < commandCategoryOptions.length; i += 25) {
+        selectMenuOptionPages.push(commandCategoryOptions.slice(i, i + 25));
+    }
+
+    const safePageIndex = Number.isFinite(pageIndex) ? Math.min(Math.max(pageIndex, 0), Math.max(categoryPages.length - 1, 0)) : Math.max(categoryPages.length - 1, 0);
+    const fields = categoryPages[safePageIndex] || [];
+    const selectMenuOptions = selectMenuOptionPages[safePageIndex] || [];
+
+    const embed = new EmbedBuilder()
+        .setTitle(`✨ ${interaction?.guild?.members.me.displayName ?? client.user.displayName} - Help Menu`.slice(0, 256))
+        .setDescription(`Select a category below to view available commands and usage.\nYou may also use \`/help [category name]\` or \`/help [command name]\` directly.`)
+        .addFields(...fields)
+        .setColor(client.config.color)
+
+    const row = new ActionRowBuilder()
+        .setComponents(
+            new StringSelectMenuBuilder()
+                .setCustomId("help_category")
+                .setPlaceholder("Select a category...")
+                .addOptions(...selectMenuOptions)
+        )
+
+    if (categoryPages.length > 1) {
+        const paginationRow = new ActionRowBuilder()
+            .setComponents(
+                new ButtonBuilder()
+                    .setCustomId(`help_mainmenu$$${safePageIndex - 1}`.slice(0, 100))
+                    .setLabel(`Previous Page`)
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(safePageIndex <= 0),
+                new ButtonBuilder()
+                    .setCustomId(`help_mainmenu$$disabled`)
+                    .setLabel(`Page ${safePageIndex + 1}/${categoryPages.length}`)
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(true),
+                new ButtonBuilder()
+                    .setCustomId(`help_mainmenu$$${safePageIndex + 1}`.slice(0, 100))
+                    .setLabel(`Next Page`)
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(safePageIndex >= categoryPages.length - 1)
+            )
+
+        return { embeds: [embed], components: [row, paginationRow], flags: [MessageFlags.Ephemeral] };
+    }
+
+    return { embeds: [embed], components: [row], flags: [MessageFlags.Ephemeral] };
+}
+
+/**
+ * 
+ * @param {string} category 
+ * @param {ExtendedClient} client 
+ * @returns 
+ */
+function getCategoryEmoji(category, client) {
+    category = category.toLowerCase();
+    return client.config.helpCategoryEmojis[category] || `❔`;
+}
+
+/**
+ * 
+ * @param {String} input 
+ * @param {ExtendedClient} client 
+ * @returns 
+ */
+function resolveHelpQueryToken(input, client) {
+    let q = String(input || "").trim().replace(/^\//, "");
+    if (q.startsWith("cmd_") || q.startsWith("cat_")) return q;
+
+    // Exact command name
+    if (client.commands.has(q)) return `cmd_${q}`;
+
+    // Case-insensitive category match
+    const categories = Object.keys(client.commandCategories || {});
+    const exact = categories.find(c => c.toLowerCase() === q.toLowerCase());
+    if (exact) return `cat_${exact}`;
+
+    // No match → keep original to trigger a clean error message upstream
+    return q;
+}
+
+/**
+ * 
+ * @param {String} query 
+ * @param {ExtendedClient} client 
+ * @returns 
+ */
+function processQueryMessage(query, client, pageIndex = 0, withBackButton = false) {
+    const isCommand = query.startsWith("cmd_");
+    if (!isCommand && !query.startsWith("cat_")) return { content: "❌ Invalid query format.", embeds: [], components: [], flags: [MessageFlags.Ephemeral] };
+
+    const embed = new EmbedBuilder()
+        .setColor(client.config.color);
+
+    if (isCommand) {
+        const command = client.commands.get(query.slice(4));
+        if (!command) return { content: "❌ Command not found.", embeds: [], components: [], flags: [MessageFlags.Ephemeral] };
+        const permissions = new PermissionsBitField(BigInt(command?.data?.default_member_permissions || 0)).toArray().map(p => `\`${p}\``).join(", ") || null;
+
+        embed.setTitle(`${getCategoryEmoji(command.category, client)} /${command.data.name} (${command?.category ? command.category.charAt(0).toUpperCase() + command.category.slice(1) : "Uncategorised"})`.slice(0, 256))
+            .setDescription(command.data.description ?? "No description provided.".slice(0, 4096));
+
+        if (command?.cooldown) embed.addFields({ name: "Cooldown".slice(0, 256), value: `${humanizeDuration(timestring(command.cooldown, 'ms'))}`.slice(0, 1024) || "None", inline: true });
+        if (permissions) embed.addFields({ name: "Default Permissions".slice(0, 256), value: permissions.slice(0, 1024), inline: true });
+        if (command?.reqRoles && command.reqRoles.length) embed.addFields({ name: "Required Roles".slice(0, 256), value: command.reqRoles.map(r => `<@&${r}>`).join(", ").slice(0, 1024), inline: command?.reqRoles.length <= 3 });
+
+        const flags = [];
+        if (command?.developer) flags.push("developer");
+        if (command?.superUserOnly) flags.push("superUserOnly");
+        if (command?.ownerOnly) flags.push("ownerOnly");
+        if (flags.length) embed.addFields({ name: "Restrictions", value: getCommandFlags(flags), inline: false });
+
+        // There can either be subcommands or options, not both
+        // When there is subcommands, command.data.options will be filled with SlashCommandSubcommandBuilder
+        // Else, it'll be filled with SlashCommandOptionBuilder
+        const subcommands = command.data.options.filter(opt => opt instanceof SlashCommandSubcommandBuilder || opt instanceof SlashCommandSubcommandGroupBuilder);
+        const options = command.data.options.filter(opt => opt.type != null);
+
+        if (subcommands.length) {
+            const subcommandLines = subcommands.map(sub => {
+                const subOpts = sub.options.filter(opt => opt.type != null);
+                const optionString = subOpts.map(o => o.required ? `<${o.name}>` : `[${o.name}]`).join(" ");
+                const fullName = optionString ? `${sub.name} ${optionString}` : sub.name;
+                return `\`/${command.data.name} ${fullName}\` - ${sub.description || "No description"}`;
+            });
+            embed.addFields({ name: "Subcommands", value: subcommandLines.length ? subcommandLines.join("\n").slice(0, 1024) : "None", inline: false });
+        } else if (options.length) {
+            embed.addFields({ name: "Options", value: options.length ? options.map(opt => `\`${opt.name}\` (${ApplicationCommandOptionType[opt.type]}) - ${opt.description || "No description"}`).join("\n").slice(0, 1024) : "None", inline: false });
         };
 
-        if (!helpcmd) {
-            let ignoredCats = [];
-            let developerOnlyCats = ["developer"];
-
-            let ccate = [];
-            readdirSync("./src/commands/").forEach((dir) => {
-                if (ignoredCats.includes(dir.toLowerCase())) return;
-                if (developerOnlyCats.includes(dir.toLowerCase()) && interaction?.guild?.id != process.env.DEVELOPER_GUILD_ID) return;
-
-                readdirSync(`./src/commands/${dir}/`).filter((file) =>
-                    file.endsWith(".js")
-                );
-
-                const name = `${emo[dir]} - ${dir.charAt(0).toUpperCase() + dir.slice(1).toLowerCase()}`;
-                let nome = dir.toLowerCase();
-
-                let cats = new Object();
-                cats = {
-                    name: name,
-                    value: `\`/help ${dir.toLowerCase()}\``,
-                    inline: true,
-                };
-
-                categories.push(cats);
-                ccate.push(nome);
-            });
-
-            const embed = new EmbedBuilder()
-                .setTitle(`✨ ${interaction?.guild?.members.me.displayName ?? client.user.displayName} - Help Menu`)
-                .setDescription(`Select a category below to view available commands and usage.
-You may also use \`/help [category name]\` or \`/help [command name]\` directly.\n
-**Need extra support?** Open a ticket!`)
-                .addFields(categories)
-                .setTimestamp()
-                .setColor(client.config.color);
-
-            let menus = createHelpMenu(ccate);
-
-            return await interaction.reply({ embeds: [embed], components: menus.smenu, flags: [MessageFlags.Ephemeral] });
-        } else {
-            let catts = [];
-
-            readdirSync("./src/commands/").forEach((dir) => {
-                if (dir.toLowerCase() !== helpcmd.toLowerCase()) return;
-                const commands = readdirSync(`./commands/${dir}/`).filter((file) =>
-                    file.endsWith(".js")
-                );
-
-                const cmds = commands.map((command) => {
-                    let file = require(`../../commands/${dir}/${command}`);
-                    let name = file.data.name;
-
-                    if (!file.data.name) return "No command name.";
-
-                    if (client.commands.get(name).hidden) return;
-
-                    let des = file.data.description;
-                    let usg = client.commands.get(name).usage;
-                    if (!usg) {
-                        usg = "No usage provided";
-                    }
-                    let emo = client.commands.get(name).emoji;
-                    let emoe = emo ? `${emo} - ` : ``;
-
-                    let obj = {
-                        cname: `${emoe}\`${name}\` |  **${usg}**`,
-                        des,
-                    };
-
-                    return obj;
-                });
-
-                let dota = new Object();
-                cmds.map((co) => {
-                    if (co == undefined) return;
-                    dota = {
-                        name: `${cmds.length === 0 ? "In progress." : co.cname}`,
-                        value: co.des ? co.des : `No Description`,
-                        inline: true,
-                    };
-                    catts.push(dota);
-                });
-
-                cots.push(dir.toLowerCase());
-            });
-
-            const command = client.commands.get(helpcmd.toLowerCase());
-
-            if (cots.includes(helpcmd.toLowerCase())) {
-                const combed = new EmbedBuilder()
-                    .setTitle(
-                        `${emo[helpcmd.toLowerCase()]} __Category: ${helpcmd.charAt(0).toUpperCase() + helpcmd.slice(1).toLowerCase()}__ (${catts.length} ${catts.length > 1 ? "commands" : "command"})`
-                    )
-                    .setDescription(
-                        `Need more information on a command? Try using \`/help [command name]\`!`
-                    )
-                    .addFields(catts)
-                    .setColor(client.config.color);
-
-                return interaction.reply({ embeds: [combed], flags: [MessageFlags.Ephemeral] });
-            }
-
-            if (!command) {
-                const embed = new EmbedBuilder()
-                    .setTitle(`❌ Invalid Command/Category!`)
-                    .setDescription(`Make sure you supplied a valid command or category name.\nUse \`/help\` for more info!`)
-                    .setColor(client.config.color);
-                return await interaction.reply({
-                    embeds: [embed],
-                    flags: [MessageFlags.Ephemeral],
-                });
-            }
-            const embed = new EmbedBuilder()
-                .setTitle(`Command: __/${command.data.name}__`)
-                .addFields(
-                    { name: "Usage:", value: command.usage ? `\`${command.usage}\`` : `\`/${command.data.name}\``, inline: true },
-                    { name: "Command Description:", value: command.data.description ? command.data.description : "No description for this command.", inline: true }
-                )
-                .setTimestamp()
-                .setColor(client.config.color);
-
-            return await interaction.reply({
-                embeds: [embed],
-                flags: [MessageFlags.Ephemeral],
-            });
+        return { embeds: [embed], components: [], flags: [MessageFlags.Ephemeral] };
+    } else if (query.startsWith("cat_")) {
+        const category = query.slice(4);
+        if (!client.commandCategories[category]) {
+            const notFoundEmbed = new EmbedBuilder()
+                .setTitle(`❌ Category not found`)
+                .setDescription(`Try re-running /help to get an updated list of categories.`)
+                .setColor('Red');
+            return { embeds: [notFoundEmbed], flags: [MessageFlags.Ephemeral] };
         }
-    },
+
+        const commandsInCategory = client.commands.filter(cmd => String(cmd?.category || "").toLowerCase() === category.toLowerCase());
+        const commandLines = commandsInCategory.size ? commandsInCategory.map(cmd => `\`/${cmd.data.name}\` - ${cmd.data.description || "No description"}`) : ["None"];
+
+        const commandPages = [];
+        for (let i = 0; i < commandLines.length; i += 30) {
+            commandPages.push(commandLines.slice(i, i + 30));
+        }
+
+        const safePageIndex = Number.isFinite(pageIndex) ? Math.min(Math.max(pageIndex, 0), Math.max(commandPages.length - 1, 0)) : Math.max(commandPages.length - 1, 0);
+
+        const embed = new EmbedBuilder()
+            .setTitle(`${getCategoryEmoji(category, client)} Category: ${category.split('/').map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' → ')}`.slice(0, 256))
+            .setDescription(`This category contains ${commandsInCategory.size} command${commandsInCategory.size === 1 ? "" : "s"}.\n\n**Commands**\n${commandPages[safePageIndex].join("\n")}`.slice(0, 4096))
+            .setFooter({ text: `To learn more about each command and its permissions or usages, use /help [command name]` })
+            .setColor(client.config.color);
+
+        const backButton = withBackButton ? [
+            new ActionRowBuilder()
+                .setComponents(
+                    new ButtonBuilder()
+                        .setCustomId("help_mainmenu")
+                        .setLabel("Back to Main Menu")
+                        .setStyle(ButtonStyle.Secondary)
+                )
+        ] : [];
+
+        if (commandPages.length > 1) {
+            const actionRow = new ActionRowBuilder()
+                .setComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`help_page$$${safePageIndex - 1}`.slice(0, 100))
+                        .setLabel(`Previous Page`)
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(safePageIndex <= 0),
+                    new ButtonBuilder()
+                        .setCustomId(category)
+                        .setLabel(`Page ${safePageIndex + 1}/${commandPages.length}`.slice(0, 100))
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled(true),
+                    new ButtonBuilder()
+                        .setCustomId(`help_page$$${safePageIndex + 1}`.slice(0, 100))
+                        .setLabel(`Next Page`)
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(safePageIndex >= commandPages.length - 1),
+                );
+
+            return { embeds: [embed], components: [...backButton, actionRow], flags: [MessageFlags.Ephemeral] };
+        }
+
+        return { embeds: [embed], components: [...backButton], flags: [MessageFlags.Ephemeral] };
+    };
+};
+
+/**
+ * @param {Array<string>} flags 
+ * @returns {string}
+ */
+function getCommandFlags(flags) {
+    if (!flags || !flags.length) return "None";
+
+    const flagMap = {
+        developer: "* 👨‍💻 Only registered in the Developer Guild",
+        superUserOnly: "* 🌟 Super User (Bot config) Only",
+        ownerOnly: "* 👑 Guild Owner Only"
+    };
+
+    const mappedFlags = flags
+        .map(flag => flagMap[flag])
+        .filter(Boolean);
+
+    return mappedFlags.length
+        ? mappedFlags.join("\n")
+        : "Flags provided; but not recognised.";
 };
