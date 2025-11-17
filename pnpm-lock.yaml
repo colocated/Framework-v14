@@ -19,7 +19,7 @@ importers:
         version: 3.3.0
       date-and-time:
         specifier: ^4.1.0
-        version: 4.1.0
+        version: 4.1.1
       discord.js:
         specifier: ^14.23.2
         version: 14.23.2
@@ -200,8 +200,8 @@ packages:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
 
-  date-and-time@4.1.0:
-    resolution: {integrity: sha512-tFdrmBPZrR7bun6jqmlEy/dsjV2JLeUdGALfbKdB7mf0ItMNkYYklxjFE0voGg5oapIaE7WctMClkuRzyU9pig==}
+  date-and-time@4.1.1:
+    resolution: {integrity: sha512-IqEzQvjaRO6KL6wxHaBsVZhzym+Kuk3VWmgydIjzbJD0Zwwa1YpvSZ/2rYR5qmAx1aDM8dMAxpQ9Wm4xQoUv3g==}
     engines: {node: '>=18'}
 
   deepmerge-ts@7.1.5:
@@ -632,7 +632,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  date-and-time@4.1.0: {}
+  date-and-time@4.1.1: {}
 
   deepmerge-ts@7.1.5: {}
 
