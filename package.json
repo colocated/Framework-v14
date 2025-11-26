@@ -27,7 +27,7 @@
     },
     "homepage": "https://github.com/colocated/Framework-v14#readme",
     "dependencies": {
-        "@prisma/client": "^6.19.0",
+        "@prisma/client": "^7.0.0",
         "chalk": "^4.1.2",
         "cronstrue": "^3.9.0",
         "date-and-time": "^4.1.1",
@@ -40,7 +40,7 @@
         "timestring": "^7.0.0"
     },
     "devDependencies": {
-        "prisma": "^6.19.0"
+        "prisma": "^7.0.0"
     },
     "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b",
     "pnpm": {
